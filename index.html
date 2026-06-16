@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSS AI Roadmap — TCBS</title>
+<style>
+:root{
+  --bg:#ffffff;--surface:#ffffff;--surface2:#f5f5f7;--border:#e5e5ea;--text:#1d1d1f;--muted:#86868b;
+  --accent:#E2231A;--accent-soft:#fdeceb;--green:#1f9d55;--yellow:#b7791f;--orange:#c2540a;--teal:#0f7a8c;--purple:#6e56cf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:28px;font-size:0.85rem;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto}
+
+.header{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px 32px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.03)}
+.header h1{font-size:1.6rem;font-weight:700;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px}
+.header h1 .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);display:inline-block}
+.header p{color:var(--muted);margin-top:10px;font-size:0.85rem;line-height:1.7;max-width:880px}
+.hbadges{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.hbadge{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:0.74rem;color:var(--text);font-weight:500}
+.hbadge.accent{background:var(--accent-soft);border-color:rgba(226,35,26,.25);color:var(--accent);font-weight:600}
+.hbadge.green{background:rgba(31,157,85,.08);border-color:rgba(31,157,85,.25);color:var(--green);font-weight:600}
+
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 18px;transition:.15s}
+.kpi:hover{box-shadow:0 4px 14px rgba(0,0,0,.05);transform:translateY(-1px)}
+.kpi .v{font-size:1.7rem;font-weight:700;letter-spacing:-0.02em;color:var(--text)}
+.kpi .v.accent{color:var(--accent)}
+.kpi .l{font-size:0.75rem;color:var(--muted);margin-top:4px}
+
+#filterBar{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#filterBar select,#filterBar input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:0.78rem;font-family:inherit}
+#filterBar input{flex:1;min-width:180px}
+#filterBar select:focus,#filterBar input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+#filterBar button{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:8px;font-size:0.76rem;cursor:pointer;font-weight:500}
+#filterBar button:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+#fCount{color:var(--accent);font-size:0.76rem;font-weight:600;white-space:nowrap;margin-left:auto}
+
+.section-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.section-title h2{font-size:1.05rem;font-weight:700;letter-spacing:-0.01em}
+.section-title p{font-size:0.78rem;color:var(--muted)}
+
+.team-wrap{display:flex;flex-direction:column;gap:10px}
+.team-block{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.team-head{display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;transition:.12s;user-select:none}
+.team-head:hover{background:var(--surface2)}
+.team-head .exp-icon{font-size:0.7rem;color:var(--muted);transition:transform .18s;width:14px;display:inline-block}
+.team-head .exp-icon.open{transform:rotate(90deg);color:var(--accent)}
+.team-head .tname{font-weight:700;font-size:0.95rem;letter-spacing:-0.01em}
+.team-head .tbadge{background:var(--accent-soft);color:var(--accent);font-size:0.7rem;font-weight:700;padding:4px 11px;border-radius:20px;letter-spacing:.04em}
+.team-head .tmeta{margin-left:auto;display:flex;gap:8px;align-items:center}
+.team-head .tcount{font-size:0.75rem;color:var(--muted)}
+.team-head .tprog{width:90px;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.team-head .tprog span{display:block;height:100%;background:var(--accent)}
+
+.sub-group{display:none;border-top:1px solid var(--border)}
+.sub-group.show{display:block}
+.sub-row{display:flex;align-items:center;gap:14px;padding:13px 18px 13px 50px;border-bottom:1px solid var(--border);cursor:pointer;transition:.12s}
+.sub-row:last-child{border-bottom:none}
+.sub-row:hover{background:var(--accent-soft)}
+.sub-row .sidx{font-size:0.72rem;color:var(--muted);font-weight:600;width:38px;flex-shrink:0}
+.sub-row .stitle{font-weight:600;font-size:0.85rem;flex:1;min-width:200px}
+.sub-row .sdesc{font-size:0.76rem;color:var(--muted);flex:2;min-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub-row .smeta{display:flex;gap:8px;align-items:center;flex-shrink:0}
+
+.badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:0.7rem;font-weight:600;white-space:nowrap}
+.b-done{background:rgba(31,157,85,.1);color:var(--green)}
+.b-prog{background:var(--accent-soft);color:var(--accent)}
+.b-prop{background:rgba(110,86,207,.1);color:var(--purple)}
+.b-cao{background:rgba(226,35,26,.1);color:var(--accent)}
+.b-tb{background:rgba(194,84,10,.1);color:var(--orange)}
+.b-thap{background:rgba(15,122,140,.1);color:var(--teal)}
+
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:50;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+#overlay.show{display:flex}
+#modal{background:#fff;border-radius:18px;max-width:780px;width:92%;max-height:88vh;overflow-y:auto;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+#modal h2{font-size:1.25rem;font-weight:700;letter-spacing:-0.02em;margin-bottom:4px;padding-right:90px}
+#modal .sub{font-size:0.8rem;color:var(--muted);margin-bottom:18px}
+#modal .mclose{position:sticky;top:0;float:right;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:0.78rem;font-weight:600;margin-left:12px}
+#modal .mclose:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+#modal .msec{margin-bottom:18px}
+#modal .msec h4{font-size:0.85rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;letter-spacing:-0.01em}
+#modal .msec ul{padding-left:0;list-style:none;font-size:0.8rem;color:var(--text);line-height:1.8}
+#modal .msec ul li{padding:4px 0 4px 16px;border-left:2px solid var(--border);margin-bottom:6px}
+#modal .msec ul.eng li{border-left:2px solid var(--accent-soft)}
+#modal .msec ul.eng li b{display:block;color:var(--text);font-size:0.81rem;margin-bottom:2px}
+#modal .msec ul.eng li span{color:var(--muted);font-size:0.78rem;line-height:1.6}
+#modal .msec p{font-size:0.83rem;color:var(--muted);line-height:1.8}
+#modal .roadmap-step{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+#modal .roadmap-num{background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;flex:0 0 24px;display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;margin-top:1px}
+#modal .roadmap-step .rtxt b{display:block;font-size:0.82rem;margin-bottom:2px}
+#modal .roadmap-step .rtxt span{font-size:0.78rem;color:var(--muted);line-height:1.7}
+#modal .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+#modal .mmeta{background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:0.76rem}
+#modal .mmeta b{color:var(--muted);display:block;margin-bottom:4px;font-size:0.68rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.input-badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:0.67rem;font-weight:600;background:var(--surface2);border:1px solid var(--border);color:var(--muted);margin:0 3px 3px 0}
+.input-badge.mcp{background:rgba(226,35,26,.07);border-color:rgba(226,35,26,.2);color:var(--accent)}
+.input-badge.pbi{background:rgba(255,180,0,.1);border-color:rgba(180,140,0,.2);color:#8a6800}
+.input-badge.jira{background:rgba(0,82,204,.07);border-color:rgba(0,82,204,.2);color:#0052cc}
+.input-badge.manual{background:rgba(110,86,207,.08);border-color:rgba(110,86,207,.2);color:var(--purple)}
+.input-badge.meeting{background:rgba(31,157,85,.08);border-color:rgba(31,157,85,.2);color:var(--green)}
+.input-badge.web{background:rgba(15,122,140,.08);border-color:rgba(15,122,140,.2);color:var(--teal)}
+.notes-area{width:100%;min-height:72px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:0.8rem;resize:vertical;color:var(--text);background:var(--surface2);margin-top:6px;transition:.15s}
+.notes-area:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.date-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:6px}
+.date-cell{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:0.74rem}
+.date-cell b{display:block;color:var(--muted);font-size:0.68rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;font-weight:700}
+.date-cell input[type=date]{width:100%;background:transparent;border:none;font-family:inherit;font-size:0.8rem;color:var(--text);cursor:pointer;padding:0;outline:none}
+.timeline-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow-x:auto}
+.timeline-wrap table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.timeline-wrap th{background:var(--surface2);color:var(--muted);text-align:left;padding:10px 14px;font-weight:700;font-size:0.69rem;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;border-bottom:1px solid var(--border)}
+.timeline-wrap td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.timeline-wrap tr:last-child td{border-bottom:none}
+.timeline-wrap tr:hover td{background:var(--accent-soft);cursor:pointer}
+.tl-date{font-size:0.78rem;color:var(--text);font-weight:500;white-space:nowrap}
+.tl-date.empty{color:var(--border)}
+.phase-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--border);margin-right:4px}
+.phase-dot.filled{background:var(--accent)}
+
+/* ── Usecase table layout ─────────────────────────────────── */
+.uc-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.uc-th{background:var(--surface2);color:var(--muted);text-align:left;padding:9px 14px;font-size:0.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap}
+.uc-row{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.uc-row:last-child{border-bottom:none}
+.uc-row:hover{background:var(--accent-soft)}
+.uc-td{padding:10px 14px;vertical-align:middle}
+.uc-td.stt{color:var(--muted);font-size:0.7rem;font-weight:700;width:36px;text-align:center}
+.uc-td.biz{width:88px}
+.uc-td.name{font-weight:600;font-size:0.83rem;min-width:200px}
+.uc-td.pic{width:150px}
+.uc-td.stat{width:128px}
+.uc-td.inp{width:210px;line-height:1.8}
+.uc-td.gl{width:88px;white-space:nowrap}
+.uc-id{color:var(--muted);font-size:0.69rem;font-weight:700;margin-right:6px;letter-spacing:.02em}
+.biz-badge{display:inline-block;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px 9px;font-size:0.67rem;font-weight:700;color:var(--muted);letter-spacing:.04em;white-space:nowrap;max-width:80px;overflow:hidden;text-overflow:ellipsis}
+.pic-input{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 9px;font-size:0.77rem;font-family:inherit;background:transparent;color:var(--text);transition:.15s;box-sizing:border-box}
+.pic-input:hover{border-color:var(--border);background:var(--surface2)}
+.pic-input:focus{border-color:var(--accent);background:#fff;outline:none;box-shadow:0 0 0 3px var(--accent-soft)}
+.stat-sel{border:1px solid transparent;border-radius:20px;padding:5px 10px;font-size:0.72rem;font-weight:600;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;transition:.15s;width:100%}
+.stat-sel:hover{filter:brightness(.95)}
+.stat-sel:focus{outline:none}
+.stat-pending{background:var(--surface2);color:var(--muted);border-color:var(--border)}
+.stat-brd{background:rgba(110,86,207,.12);color:var(--purple);border-color:rgba(110,86,207,.3)}
+.stat-mockdesign{background:rgba(194,84,10,.1);color:var(--orange);border-color:rgba(194,84,10,.3)}
+.stat-build{background:rgba(0,100,220,.08);color:#0052cc;border-color:rgba(0,100,220,.2)}
+.stat-golive{background:rgba(31,157,85,.1);color:var(--green);border-color:rgba(31,157,85,.3)}
+
+/* ── Priority select ───────────────────────────────────────── */
+.uc-td.pri{width:80px}
+.pri-sel{border:1px solid transparent;border-radius:20px;padding:5px 10px;font-size:0.72rem;font-weight:600;font-family:inherit;cursor:pointer;-webkit-appearance:none;appearance:none;text-align:center;transition:.15s;width:100%}
+.pri-sel:focus{outline:none}
+.pri-cao{background:rgba(226,35,26,.1);color:var(--accent);border-color:rgba(226,35,26,.3)}
+.pri-tb{background:rgba(194,84,10,.1);color:var(--orange);border-color:rgba(194,84,10,.3)}
+.pri-thap{background:rgba(15,122,140,.1);color:var(--teal);border-color:rgba(15,122,140,.3)}
+
+/* ── Date inputs in table ──────────────────────────────────── */
+.uc-td.dtcell{width:104px;padding:8px 6px}
+.dt-inp{width:100%;border:1px solid var(--border);border-radius:6px;padding:4px 5px;font-size:0.69rem;font-family:inherit;background:var(--surface2);color:var(--text);cursor:pointer;box-sizing:border-box;transition:.15s}
+.dt-inp:hover{border-color:var(--accent)}
+.dt-inp:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.dt-inp.has-date{background:rgba(31,157,85,.08);border-color:rgba(31,157,85,.35);color:var(--green);font-weight:600}
+.dt-lbl{display:block;font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:3px}
+
+/* ── Input multi-select (details) ─────────────────────────── */
+.uc-td.inp{width:170px;padding:8px 10px}
+.inp-details{width:100%}
+.inp-details summary{list-style:none;cursor:pointer;outline:none}
+.inp-details summary::-webkit-details-marker{display:none}
+.inp-sum{display:flex;flex-wrap:wrap;gap:3px;min-height:22px;align-items:center}
+.inp-details[open] .inp-sum::after{content:"▲";font-size:0.6rem;color:var(--muted);margin-left:auto}
+.inp-sum::after{content:"▼";font-size:0.6rem;color:var(--border);margin-left:auto}
+.inp-panel{margin-top:6px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;box-shadow:0 4px 12px rgba(0,0,0,.08);position:relative;z-index:20}
+.inp-opt{display:flex;align-items:center;gap:7px;cursor:pointer;padding:2px 0}
+.inp-opt input[type=checkbox]{cursor:pointer;accent-color:var(--accent);width:13px;height:13px;flex-shrink:0}
+.inp-opt .input-badge{pointer-events:none;font-size:0.65rem}
+
+/* ── Gantt chart ───────────────────────────────────────────── */
+.gantt-task-row:hover{background:var(--accent-soft) !important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="header">
+  <h1><span class="dot"></span>SSS AI Transformation Roadmap</h1>
+  <p>Tổng hợp 26 usecase AI cập nhật đến 16/6/2026 — tổ chức theo <b>Team chính</b> để thấy tổng thể usecase nào thuộc team nào. Click vào tên team để mở/đóng danh sách usecase; click vào 1 usecase để xem chi tiết BRD, điền ngày timeline và ghi chú.</p>
+  <div class="hbadges">
+    <span class="hbadge accent">26 usecases</span>
+    <span class="hbadge green">1 hoàn thành</span>
+    <span class="hbadge">3 đang xây / đã triển khai</span>
+    <span class="hbadge">22 đề xuất mới</span>
+    <span class="hbadge">9 team chính</span>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="v">26</div><div class="l">Tổng số Usecase</div></div>
+  <div class="kpi"><div class="v" style="color:var(--green)">1</div><div class="l">Hoàn thành / Đã deploy</div></div>
+  <div class="kpi"><div class="v accent">3</div><div class="l">Đang xây BRD</div></div>
+  <div class="kpi"><div class="v" style="color:var(--purple)">22</div><div class="l">Đề xuất mới</div></div>
+  <div class="kpi"><div class="v accent">9</div><div class="l">Priority Cao</div></div>
+</div>
+
+<div id="filterBar">
+  <select id="fPriority"><option value="">Tất cả Priority</option><option value="Cao">Cao</option><option value="TB">Trung bình</option><option value="Thấp">Thấp</option></select>
+  <select id="fStatus"><option value="">Tất cả Trạng thái</option></select>
+  <input id="searchBox" type="text" placeholder="Tìm theo tên usecase, owner, team...">
+  <span id="fCount"></span>
+  <button onclick="resetFilters()">↺ Reset</button>
+  <button onclick="expandAll(true)">Mở tất cả</button>
+  <button onclick="expandAll(false)">Đóng tất cả</button>
+</div>
+
+<div id="ganttSection"></div>
+
+<div class="section-title">
+  <h2>📂 Usecase theo Team chính</h2>
+  <p>Click vào team để xem · Click vào usecase để xem chi tiết BRD · Điền ngày/PIC/Status trực tiếp trên bảng</p>
+</div>
+
+<div class="team-wrap" id="teamWrap" style="display:flex;flex-direction:column;gap:10px"></div>
+
+</div>
+
+<div id="overlay" onclick="if(event.target===this)closeModal()">
+  <div id="modal"></div>
+</div>
+
+<script>
+const TASKS = [
+{id:"MON-1", name:"Báo cáo SSS Monthly (CEO Dashboard)", team:"Tổng hợp / CEO", group:"Tổng hợp / CEO", priority:"Cao", owner:"SSS Management + Các Head, phối hợp anh Nghiêm", complexity:"Cao", status:"Đề xuất mới",
+  inputType:["Backend MCP","PowerBI","Meeting Notes","Manual input"],
+  mucTieu:"Tổng hợp tự động báo cáo monthly toàn SSS: từng desk đã làm gì trong tháng trước, kế hoạch tháng này, các con số highlight, điểm tốt, điểm chưa tốt, nguyên nhân và hành động cải thiện cụ thể. Input từ: MCP backend các desk, PowerBI, note họp các Head, báo cáo tuần DCM, record cuộc họp IB Senior hàng tuần.",
+  engine:["Monthly Data Aggregation Engine — pull tự động data từ MCP backend các desk + PowerBI","Insight & Commentary Engine — phân tích điểm mạnh/yếu, nguyên nhân, đề xuất action per desk","Report Generation Engine — tổng hợp thành báo cáo monthly hoàn chỉnh cho CEO","Meeting Capture Engine — record + transcribe cuộc họp IB Senior hàng tuần → extract insights"],
+  engineDetail:[
+    {n:"Monthly Data Aggregation Engine",d:"Pull tự động số liệu từ MCP backend của từng desk (WA, OPS, Margin, FI/Corp, PBS...) và từ PowerBI; chuẩn hóa theo template monthly để làm input cho các engine phân tích."},
+    {n:"Insight & Commentary Engine",d:"Với mỗi desk, phân tích số liệu tháng trước so với tháng trước đó, xác định điểm tốt/chưa tốt, suy luận nguyên nhân (so sánh KPI, thị trường, sự kiện) và đề xuất action cụ thể cần thực hiện để cải thiện."},
+    {n:"Report Generation Engine",d:"Tổng hợp toàn bộ data + insight thành báo cáo SSS Monthly hoàn chỉnh theo đúng format CEO cần (xem file SSS Monthly Update tháng 6/2026), hỗ trợ nhiều format output (PDF, Word, slide)."},
+    {n:"Meeting Capture Engine",d:"Tự động record + speech-to-text cuộc họp IB Senior hàng tuần (dùng app ngoài, capture text vào web), trích xuất key updates, quyết định, action items của từng desk để bổ sung vào input monthly."}],
+  input:["MCP backend từng desk: WA, OPS, Margin, FI/Corp, PBS, Phân tích","PowerBI data (nguồn ANI)","Note họp của các Head hàng tháng","Báo cáo tuần DCM (input trực tiếp vào monthly)","Record cuộc họp IB Senior hàng tuần (app ngoài → capture text vào web)"],
+  output:["Báo cáo SSS Monthly tổng hợp theo đúng format CEO","Insights per desk: con số highlight, điểm tốt/chưa tốt, nguyên nhân, action","Action items tracking cho từng desk theo tháng"],
+  value:"CEO nắm được toàn bộ hoạt động SSS trong 1 báo cáo chuẩn hóa hàng tháng; theo dõi tiến độ từng desk; phát hiện vấn đề sớm và có action plan rõ ràng.",
+  roadmap:[
+    {t:"Xác định format báo cáo monthly (ngồi với anh Nghiêm)",d:"Review file SSS Monthly Update hiện tại, xác định cấu trúc chuẩn: section theo desk, KPIs cần track, format insight, action items. Đây là bước quan trọng nhất — format sai thì mọi automation đều vô dụng."},
+    {t:"Tích hợp Meeting Capture Engine",d:"Chọn app record ngoài phù hợp, xây pipeline capture text từ recording cuộc họp IB Senior hàng tuần → extract key updates theo desk."},
+    {t:"Kết nối MCP backend từng desk",d:"Lần lượt kết nối MCP backend WA, OPS, Margin, FI/Corp, PBS để pull số liệu tự động; ưu tiên desk nào đã có MCP sẵn trước."},
+    {t:"Tích hợp PowerBI + báo cáo tuần DCM",d:"Kết nối PowerBI (ANI) lấy data tổng hợp; đưa báo cáo tuần DCM vào pipeline input monthly."},
+    {t:"Xây Insight & Commentary Engine",d:"Tự động phân tích số liệu so sánh tháng này vs tháng trước, sinh commentary điểm tốt/chưa tốt, nguyên nhân, action per desk."},
+    {t:"Report Generation Engine + vận hành định kỳ",d:"Tổng hợp thành báo cáo monthly hoàn chỉnh; pilot với 1 tháng, review với CEO và anh Nghiêm, điều chỉnh format và chạy định kỳ hàng tháng."}]},
+{id:"1S-0", name:"1South — Customer 360 Intelligence Platform", team:"1South", group:"1South (Platform lõi)", priority:"Cao", owner:"1South PM team, phối hợp WA / PBS / FI-Corp / Phân tích", complexity:"Cao", status:"Đang xây BRD (v0.1)",
+  mucTieu:"Xây dựng nền tảng chân dung khách hàng toàn diện (demographic, hành vi, tài sản, sản phẩm, lịch sử tương tác), làm nền cho mọi usecase liên quan tới KH của các khối (WA, PBS, FI/Corp).",
+  engine:["Customer 360 Profile Engine — tổng hợp dữ liệu KH từ nhiều nguồn","Behavior & Recommendation Engine — gợi ý sản phẩm/nhóm KH theo hành vi, khẩu vị rủi ro","Interaction Knowledge Engine — ghi âm/văn bản tương tác RM-KH → kiến thức tương tác"],
+  engineDetail:[
+    {n:"Customer 360 Profile Engine",d:"Hợp nhất dữ liệu rải rác từ CRM, core, AUM, lịch sử giao dịch thành 1 hồ sơ KH duy nhất (golden record), cập nhật gần thời gian thực, là nguồn dữ liệu chuẩn cho mọi engine khác và mọi team dùng chung."},
+    {n:"Behavior & Recommendation Engine",d:"Phân tích hành vi giao dịch, khẩu vị rủi ro, lịch sử mua bán để gợi ý sản phẩm phù hợp, phát hiện xu hướng và phân nhóm (segment) KH phục vụ bán chéo, cá nhân hóa tư vấn của RM."},
+    {n:"Interaction Knowledge Engine",d:"Dùng speech-to-text + NLP để chuyển ghi âm/văn bản tương tác RM-KH thành dữ liệu có cấu trúc (chủ đề quan tâm, nhu cầu, phản hồi), tích lũy thành bộ nhớ tương tác phục vụ cá nhân hóa lâu dài."}],
+  input:["Dữ liệu KH: demographic (giới tính, gia đình, nghề nghiệp, chức vụ)","AUM, lịch sử giao dịch, sản phẩm đang sử dụng","Thông tin giao dịch nội bộ (fiin pro)","Ghi âm/văn bản tương tác RM (sau khi có ≥10 điểm dữ liệu/KH)"],
+  output:["Customer 360 view / snapshot trạng thái KH","Gợi ý sản phẩm nên bán, xu hướng, nhóm KH, khẩu vị rủi ro","Bản tin buổi sáng cho RM","Đầu mối doanh nghiệp được share giữa các bộ phận"],
+  value:"Hiểu sâu khách hàng để bán chéo, giữ KH/AUM, cá nhân hóa tương tác; là hạ tầng dùng chung cho WA, PBS, FI/Corp, giải quyết touching-point ở miền Nam.",
+  roadmap:[
+    {t:"Thu thập & chuẩn hóa dữ liệu nền",d:"Kết nối nguồn demographic, AUM, lịch sử giao dịch, sản phẩm đang dùng; xây pipeline ETL và data dictionary chung cho toàn dự án."},
+    {t:"Xây Customer 360 Profile Engine (MVP)",d:"Tạo golden record KH + snapshot trạng thái cơ bản; pilot với 1 nhóm KH mẫu trước khi mở rộng toàn bộ."},
+    {t:"Behavior & Recommendation Engine + bản tin sáng",d:"Xây model gợi ý sản phẩm/nhóm KH theo hành vi; tự động sinh bản tin buổi sáng gửi RM hàng ngày."},
+    {t:"Tích hợp Interaction Knowledge Engine",d:"Thu thập & xử lý ghi âm/văn bản tương tác (khi đủ ≥10 điểm dữ liệu/KH) bằng pipeline NLP để trích xuất insight."},
+    {t:"Screening KH Corp & mở rộng chia sẻ dữ liệu",d:"Tích hợp screening KH Corp tiềm năng (FI-4) và chia sẻ đầu mối doanh nghiệp giữa WA, PBS, FI/Corp."}]},
+{id:"WA-1", name:"Dashboard đo lường doanh số", team:"WA", group:"WA", priority:"Thấp", owner:"WA / ngành dọc", complexity:"—", status:"Hoàn thành",
+  mucTieu:"Theo dõi doanh số theo RM/vùng/sản phẩm.",
+  engine:["Đã triển khai theo ngành dọc — không cần xây mới"],
+  engineDetail:[{n:"Dashboard doanh số (ngành dọc)",d:"Đã có sẵn trên hệ thống báo cáo ngành dọc, hiển thị doanh số theo RM, vùng, sản phẩm; không cần đầu tư xây mới, chỉ cần maintain."}],
+  input:["Dữ liệu doanh số theo ngành dọc"],
+  output:["Dashboard doanh số (đã có)"],
+  value:"Đã đáp ứng nhu cầu hiện tại, không cần đầu tư thêm.",
+  roadmap:[{t:"Maintain dashboard hiện hữu",d:"Không phát sinh đầu việc mới — chỉ theo dõi và bảo trì khi có thay đổi dữ liệu nguồn."}]},
+{id:"WA-2", name:"App Test & Đào tạo nâng cao năng lực LLTV", team:"WA", group:"WA — Trung tâm đào tạo", priority:"Cao", owner:"Trung tâm đào tạo + WA, cần đấu nối SSS (RM Diamond, IWP, API AI)", complexity:"Trung bình – Cao", status:"Đề xuất mới",
+  mucTieu:"Xây nền tảng đào tạo & kiểm tra năng lực cho Đối tác / RM, thay thế công cụ thuê ngoài (Quizizz) đang tốn chi phí và thiếu chủ động. Mở rộng sang RM Private Squad. Bổ sung hệ thống gamification: tích điểm thi, leaderboard ranking, tặng quà cho RM học giỏi — ý tưởng do chị Linh đề xuất.",
+  engine:["Question Bank Engine — ngân hàng câu hỏi, xáo trộn đề thi","Test & Certification Engine — tạo bài test, chấm điểm, cấp certificate","Learning Analytics Engine — tracking tiến trình & learning curve học viên","Knowledge Hub — kho kiến thức & dữ liệu đối tượng tham gia","Gamification Engine — điểm thi, leaderboard, phần thưởng cho RM học giỏi"],
+  engineDetail:[
+    {n:"Question Bank Engine",d:"Lưu trữ ngân hàng câu hỏi theo domain nghiệp vụ, tự động xáo trộn câu hỏi/đáp án mỗi lần thi để chống học vẹt/gian lận, cho phép phân loại theo độ khó và chủ đề."},
+    {n:"Test & Certification Engine",d:"Tạo bài thi tự động từ Question Bank, chấm điểm tức thời, cấp chứng chỉ (certificate) số cho học viên đạt yêu cầu, lưu lịch sử kết quả."},
+    {n:"Learning Analytics Engine",d:"Theo dõi tiến trình học, learning curve, điểm yếu của từng học viên/nhóm để đề xuất nội dung ôn tập phù hợp."},
+    {n:"Knowledge Hub",d:"Kho tài liệu đào tạo trung tâm, tích hợp dữ liệu đối tượng tham gia (Đối tác, RM Diamond, IWP, RM Private Squad) để cá nhân hóa lộ trình học."},
+    {n:"Gamification Engine",d:"Quản lý điểm số thi tích lũy của từng RM theo vùng/nhóm, xây leaderboard ranking thời gian thực, tích hợp cơ chế tặng quà/recognition tự động cho RM đạt điểm cao — khuyến khích văn hóa học tập chủ động (đề xuất của chị Linh)."}],
+  input:["Bộ câu hỏi nghiệp vụ theo domain","Dữ liệu học viên: Đối tác, RM Diamond, IWP","Lịch sử làm bài, kết quả học tập"],
+  output:["Bài test (đề được xáo trộn)","Kết quả/điểm số, chứng chỉ (certificate)","Báo cáo hiệu quả học tập & tiến trình học theo từng học viên/nhóm"],
+  value:"Giảm chi phí thuê bên thứ 3, chủ động về domain & đề thi, mở rộng đào tạo cho RM Diamond/IWP, tạo dữ liệu học viên phục vụ chung SSS (đấu nối, sản phẩm chung).",
+  roadmap:[
+    {t:"Xây Question Bank Engine",d:"Số hóa bộ câu hỏi hiện có theo domain, gắn tag độ khó/chủ đề, xây cơ chế xáo trộn đề."},
+    {t:"Xây Test Engine cơ bản cho Đối tác (thay Quizizz)",d:"Tạo bài test, chấm điểm tự động, pilot với nhóm Đối tác để thay thế Quizizz."},
+    {t:"Mở rộng cho IWP + Certification",d:"Mở rộng đối tượng sang IWP, bổ sung cấp chứng chỉ số."},
+    {t:"Learning Analytics Engine",d:"Xây dashboard tracking tiến trình & learning curve theo học viên/nhóm."},
+    {t:"Tích hợp dữ liệu học viên vào 1South",d:"Đưa dữ liệu learning curve, kết quả học tập vào nền tảng 1South để dùng chung toàn SSS."}]},
+{id:"WA-3", name:"Báo cáo tuần theo vùng — RM Performance Insight", team:"WA", group:"WA", priority:"TB", owner:"WA, phối hợp ANI", complexity:"Thấp – Trung bình", status:"Đề xuất mới",
+  mucTieu:"Tự động hóa báo cáo tuần theo vùng (hiện làm bằng Excel gửi tay), sinh insight về hiệu quả RM và rủi ro mất KH/AUM.",
+  engine:["Reporting & Visualization Engine — đọc data PowerBI (nguồn ANI), visualize tự động","Insight Engine — phát hiện dòng tiền ra theo sản phẩm, sản phẩm \"comeback\", nguyên nhân mất KH/AUM","Review Gate — bản nháp cần review trước khi gửi (không gửi tự động)"],
+  engineDetail:[
+    {n:"Reporting & Visualization Engine",d:"Kết nối trực tiếp vào data PowerBI nguồn ANI, tự động tổng hợp số liệu theo vùng và tạo biểu đồ/báo cáo trực quan, thay cho việc tổng hợp tay bằng Excel."},
+    {n:"Insight Engine",d:"Phân tích dòng tiền ra theo sản phẩm, phát hiện sản phẩm 'comeback' (KH quay lại), và truy ngược nguyên nhân mất KH/AUM để cảnh báo sớm cho RM/quản lý vùng."},
+    {n:"Review Gate",d:"Cơ chế chặn: mọi báo cáo/insight sinh ra đều ở dạng bản nháp, cần người phụ trách review và duyệt trước khi gửi đi, tránh sai lệch số liệu phát hành tự động."}],
+  input:["Data PowerBI lấy từ ANI (chưa có trên backend)","File Excel báo cáo vùng hiện hữu"],
+  output:["Báo cáo visualize theo vùng (local host)","Insight: sản phẩm tiền ra nhiều nhất, nguyên nhân mất KH/AUM, sản phẩm comeback","Bản báo cáo nháp chờ review trước khi phát hành"],
+  value:"Tiết kiệm thời gian làm báo cáo tay hàng tuần, phát hiện sớm rủi ro mất KH/AUM theo từng vùng, hỗ trợ RM cải thiện hiệu suất bán hàng.",
+  roadmap:[
+    {t:"Kết nối nguồn dữ liệu PowerBI (ANI)",d:"Làm việc với ANI để lấy quyền truy cập data PowerBI, ánh xạ cấu trúc dữ liệu hiện có sang format chuẩn."},
+    {t:"Xây Reporting & Visualization Engine",d:"Tự động tổng hợp & visualize báo cáo theo vùng, đối chiếu với file Excel hiện hữu để đảm bảo khớp số liệu."},
+    {t:"Xây Insight Engine cơ bản",d:"Phát hiện dòng tiền ra theo sản phẩm và nguyên nhân mất KH/AUM ở mức cảnh báo đơn giản."},
+    {t:"Thêm Review Gate & vận hành định kỳ",d:"Thiết lập luồng review thủ công trước khi phát hành; sau khi ổn định, cân nhắc tự động theo lịch tuần."}]},
+{id:"WS-1", name:"Email MCP — WS Gửi Mail Chi Nhánh", team:"WS", group:"WS", priority:"TB", owner:"WS, phối hợp Xuân", complexity:"Thấp – Trung bình", status:"Đề xuất mới",
+  inputType:["Backend MCP","Manual input"],
+  mucTieu:"Xây kênh email chuẩn cho WS gửi thông báo, cập nhật nghiệp vụ và sản phẩm đến các chi nhánh trên toàn hệ thống — thay thế cách gửi email thủ công phân tán hiện tại. Cần xác nhận với Xuân về kênh gửi mail phù hợp (SMTP nội bộ, Outlook API hay giải pháp khác).",
+  engine:["Email Composition Engine — soạn nội dung mail chuẩn từ template","Distribution Engine — quản lý danh sách chi nhánh, gửi theo nhóm/vùng","Tracking Engine — theo dõi trạng thái gửi, mở mail, phản hồi"],
+  engineDetail:[
+    {n:"Email Composition Engine",d:"Soạn thảo nội dung email từ template chuẩn WS (thông báo sản phẩm, cập nhật nghiệp vụ, lịch họp), hỗ trợ AI gợi ý nội dung và personalize theo chi nhánh nhận."},
+    {n:"Distribution Engine",d:"Quản lý danh sách chi nhánh (theo vùng, loại chi nhánh), gửi mail đồng loạt hoặc theo nhóm mục tiêu. Tích hợp MCP với hệ thống mail nội bộ sau khi xác nhận kênh phù hợp với Xuân."},
+    {n:"Tracking Engine",d:"Theo dõi trạng thái gửi (delivered/failed), tỷ lệ mở mail theo chi nhánh, nhắc nhở gửi lại nếu chưa đọc — giúp WS biết chi nhánh nào đã/chưa nắm thông tin."}],
+  roadmap:[
+    {t:"Xác nhận kênh gửi mail với Xuân",d:"Làm rõ kênh mail phù hợp (SMTP nội bộ SSS, Outlook Graph API hay solution khác) và quyền hạn truy cập để tích hợp MCP."},
+    {t:"Xây template email chuẩn WS",d:"Thiết kế bộ template email cho các loại thông báo WS hay gửi nhất: sản phẩm mới, thay đổi nghiệp vụ, lịch họp/training."},
+    {t:"Xây Distribution Engine + danh sách chi nhánh",d:"Import và duy trì danh sách chi nhánh theo cấu trúc tổ chức; cho phép gửi theo vùng hoặc toàn bộ."},
+    {t:"Tích hợp MCP & vận hành pilot",d:"Kết nối Email Composition Engine với kênh mail đã chọn; chạy pilot với 1-2 vùng chi nhánh trước khi rollout toàn hệ thống."},
+    {t:"Bổ sung Tracking & tối ưu",d:"Thêm tracking mở mail, dashboard theo dõi tỷ lệ tiếp cận theo chi nhánh, tự động nhắc gửi lại với chi nhánh chưa đọc."}]},
+{id:"OPS-1", name:"Knowledge Base OPS (MCP Flexi)", team:"OPS", group:"OPS", priority:"Cao", owner:"OPS", complexity:"Trung bình", status:"Đề xuất mới (nền tảng)",
+  mucTieu:"Xây kho kiến thức nghiệp vụ OPS chuẩn (quy trình, mẫu form, rule) làm nền tảng cho toàn bộ các agent OPS khác.",
+  engine:["Knowledge Base Engine (vector store + retrieval)","Tích hợp Kiro skills cho training MCP BPM"],
+  engineDetail:[
+    {n:"Knowledge Base Engine (vector store + retrieval)",d:"Số hóa và index toàn bộ tài liệu quy trình, mẫu form, rule nghiệp vụ OPS vào vector store; cho phép AI agent và nhân viên truy vấn ngôn ngữ tự nhiên để tìm đúng quy trình/biểu mẫu cần dùng."},
+    {n:"Tích hợp Kiro skills cho training MCP BPM",d:"Đóng gói quy trình OPS thành các 'skill' chuẩn trên Kiro để các MCP (như BPM automation ở OPS-2) học và thao tác đúng theo quy trình thật."}],
+  input:["Tài liệu quy trình OPS hiện hành","Mẫu form, rule nghiệp vụ (gen form, phong tỏa, sao kê...)"],
+  output:["Kho kiến thức tra cứu được cho AI agent & nhân viên","Skill Kiro chuẩn cho MCP BPM"],
+  value:"Nền tảng bắt buộc cho mọi automation OPS phía sau (sao kê, chứng từ, gen form); giảm thời gian tra cứu quy trình của nhân sự.",
+  roadmap:[
+    {t:"Tập hợp & số hóa tài liệu quy trình",d:"Thu thập toàn bộ SOP, mẫu form, rule nghiệp vụ hiện hành của OPS, chuẩn hóa định dạng."},
+    {t:"Xây Knowledge Base Engine (vector store)",d:"Index tài liệu vào vector store, xây giao diện/tool truy vấn cho nhân viên và AI agent."},
+    {t:"Đóng gói Kiro skills cho MCP BPM",d:"Chuyển hóa quy trình thành skill chuẩn để MCP BPM (OPS-2) sử dụng."},
+    {t:"Mở rộng theo từng usecase OPS",d:"Tích hợp dần cho các usecase sao kê, chứng từ, gen form (OPS-2..6)."},
+    {t:"Vòng lặp tự học & cập nhật",d:"Thiết lập cơ chế cập nhật KB liên tục từ phản hồi thực tế xử lý nghiệp vụ."}]},
+{id:"OPS-2", name:"AI tự động xử lý Sao kê (Statement Automation)", team:"OPS", group:"OPS", priority:"Cao", owner:"OPS (chị Hòa, Trang) + IT hỗ trợ BPM/Jira API/email channel", complexity:"Trung bình – Cao", status:"Đề xuất mới, ưu tiên cao",
+  mucTieu:"Tự động hóa quy trình in sao kê: mass order qua BPM hằng ngày + sao kê không chính thống xử lý qua Jira ticket (hiện đang làm tay, ký tay).",
+  engine:["BPM Task Automation Engine — tự động vào BPM, search task sao kê","Jira Integration Engine — kiểm tra ticket yêu cầu in sao kê","Document Generation Bot (D.ops) — từ 2 input (BPM + Jira) ra file Excel chi tiết (kênh, loại sao kê)","e-Signature Integration — khuyến khích & xử lý ký số, vẫn hỗ trợ ký tươi","Email Automation — gửi sao kê cho KH (cần IT xác nhận channel)"],
+  engineDetail:[
+    {n:"BPM Task Automation Engine",d:"Tự động đăng nhập/truy vấn hệ thống BPM mỗi ngày, tìm các task 'mass order' yêu cầu in sao kê, trích xuất thông tin KH và loại sao kê cần xử lý."},
+    {n:"Jira Integration Engine",d:"Theo dõi các Jira ticket yêu cầu sao kê không chính thống, đọc nội dung ticket để lấy yêu cầu cụ thể của KH/RM."},
+    {n:"Document Generation Bot (D.ops)",d:"Kết hợp dữ liệu từ BPM và Jira, tự động sinh file Excel chi tiết (kênh nhận, loại sao kê) làm input cho bước in/ký sao kê."},
+    {n:"e-Signature Integration",d:"Tự động đưa sao kê vào luồng ký số (e-signature) khi KH đã đăng ký, đồng thời vẫn hỗ trợ in để ký tươi cho KH chưa chuyển đổi."},
+    {n:"Email Automation",d:"Gửi sao kê đã hoàn tất tới đúng email/kênh của KH, đồng thời cập nhật trạng thái done/not done ngược lại trên BPM."}],
+  input:["Task BPM hằng ngày (mass order)","Jira ticket yêu cầu in sao kê (sao kê không chính thống)","Thông tin KH: kênh nhận, loại sao kê"],
+  output:["File Excel chi tiết (input cho bot D.ops)","Sao kê đã xử lý (ký số/ký tươi)","Email tự động gửi KH","Cập nhật trạng thái done/not done trên BPM"],
+  value:"Giảm thao tác tay & ký tay của Biz (hiện do chị Hòa/Trang xử lý), tăng tốc xử lý sao kê hằng ngày, thúc đẩy KH chuyển sang ký số.",
+  roadmap:[
+    {t:"Kết nối BPM & Jira API",d:"Thiết lập quyền truy cập API BPM và Jira, xây script đọc task/ticket sao kê hằng ngày."},
+    {t:"AI đọc dữ liệu → xuất file Excel chi tiết",d:"Xây logic gộp dữ liệu BPM + Jira thành file Excel chuẩn (kênh, loại sao kê) tự động."},
+    {t:"Tích hợp bot D.ops & training MCP BPM (Kiro)",d:"Triển khai bot xử lý theo skill Kiro đã chuẩn hóa ở OPS-1."},
+    {t:"Tích hợp e-Signature & Email Automation",d:"Tự động ký số (khi KH đã đăng ký) hoặc in ký tươi, gửi email và cập nhật trạng thái trên BPM."},
+    {t:"Tối ưu & mở rộng loại sao kê",d:"Mở rộng cho các loại sao kê khác, theo dõi tỉ lệ chuyển đổi ký số để tối ưu thêm."}]},
+{id:"OPS-3", name:"Tổng hợp Task & Hồ sơ — Dashboard Backend OPS", team:"OPS", group:"OPS", priority:"Cao", owner:"OPS + IT (anh Thắng)", complexity:"Cao (phụ thuộc hạ tầng lưu trữ)", status:"Đề xuất mới",
+  mucTieu:"Xây backend tổng hợp hồ sơ đi/đến, tra cứu theo khách hàng, dashboard quản lý task & hồ sơ tổng thể.",
+  engine:["Document Tracking Engine — quản lý hồ sơ đi/đến, kinh doanh lưu, hồ sơ lưu ký","Search & Retrieval Engine — tra cứu theo KH, theo email","Dashboard Engine — tổng hợp task, trạng thái hồ sơ"],
+  engineDetail:[
+    {n:"Document Tracking Engine",d:"Ghi nhận và theo dõi trạng thái toàn bộ hồ sơ đi/đến (kinh doanh lưu, hồ sơ lưu ký, kể cả hồ sơ sai cần xử lý lại), gắn nhãn theo KH và loại hồ sơ."},
+    {n:"Search & Retrieval Engine",d:"Cho phép tra cứu nhanh toàn bộ hồ sơ liên quan đến 1 KH (theo tên/email), kể cả hồ sơ nằm ở các nguồn lưu trữ khác nhau (ổ K, TDOC, drive)."},
+    {n:"Dashboard Engine",d:"Tổng hợp số liệu task & trạng thái hồ sơ theo thời gian thực, hiển thị các ticket ngoại lệ cần xử lý ưu tiên."}],
+  input:["Hồ sơ đi/đến (kinh doanh lưu, hồ sơ lưu ký — kể cả hồ sơ sai cần xử lý)","Ticket ngoại lệ","Data storage hiện tại (ổ K / TDOC / drive — cần xác nhận với IT, anh Thắng)"],
+  output:["Dashboard tổng hợp task & trạng thái hồ sơ","Liệt kê toàn bộ hồ sơ theo 1 khách hàng (tra theo email)","Theo dõi hồ sơ ngoại lệ"],
+  value:"Minh bạch luồng hồ sơ đi/đến, tra cứu nhanh theo KH, giảm thất lạc & sai sót khi nhận hồ sơ lưu ký.",
+  roadmap:[
+    {t:"Xác định & kết nối hạ tầng lưu trữ",d:"Làm việc với IT (anh Thắng) để xác định cấu trúc dữ liệu trên ổ K/TDOC/drive, thiết lập quyền truy cập."},
+    {t:"Xây Document Tracking Engine cơ bản",d:"Triển khai luồng theo dõi hồ sơ đi/đến cho 1-2 loại hồ sơ chính trước."},
+    {t:"Xây Search & Retrieval theo KH/email",d:"Cho phép tra cứu toàn bộ hồ sơ của 1 KH qua email, gộp dữ liệu từ nhiều nguồn lưu trữ."},
+    {t:"Xử lý ticket ngoại lệ",d:"Thiết lập luồng đánh dấu & xử lý hồ sơ/ticket ngoại lệ (sai, thiếu)."},
+    {t:"Xây Dashboard tổng thể",d:"Tổng hợp toàn bộ vào dashboard sau khi backend đã ổn định và đầy đủ dữ liệu."}]},
+{id:"OPS-4", name:"Chấm chứng từ & Quản lý Phong tỏa tự động", team:"OPS", group:"OPS", priority:"Cao", owner:"OPS", complexity:"Trung bình – Cao", status:"Đề xuất mới",
+  mucTieu:"AI đọc file Excel (đầu ra của OPS-2), import vào backend, phân loại chứng từ theo 105C, kiểm tra phong tỏa/giải tỏa thay cho chấm tay.",
+  engine:["Document Classification Engine — phân loại chứng từ theo 105C","File Import & Filing Bot — đọc Excel → import backend → lưu đúng vị trí trên ổ K","Blacklist/Hold Screening Engine — quét tên file, xác định phong tỏa hay không","Alert Engine — bắn task JIRA phong tỏa vào channel của nhóm liên quan theo rule"],
+  engineDetail:[
+    {n:"Document Classification Engine",d:"Đọc file Excel chi tiết (đầu ra OPS-2) và tự động phân loại từng chứng từ theo chuẩn 105C, gắn đúng mã/loại hồ sơ."},
+    {n:"File Import & Filing Bot",d:"Import dữ liệu đã phân loại vào backend và lưu file đúng vị trí thư mục trên ổ K theo cấu trúc chuẩn, thay cho việc sắp xếp tay."},
+    {n:"Blacklist/Hold Screening Engine",d:"Quét tên/nội dung file chứng từ để xác định có thuộc danh sách cần phong tỏa hay không, dựa trên rule nghiệp vụ đã định nghĩa."},
+    {n:"Alert Engine",d:"Khi phát hiện trường hợp cần phong tỏa, tự động tạo task JIRA và gửi vào channel của nhóm liên quan (3 người phụ trách) theo đúng rule phân luồng."}],
+  input:["File Excel chi tiết (từ OPS-2: in sao kê, chứng từ)","File/tên file chứng từ lưu trên ổ K","Rule nghiệp vụ phong tỏa/giải tỏa"],
+  output:["Chứng từ đã phân loại theo 105C & lưu đúng vị trí","Cảnh báo phong tỏa/giải tỏa","Thông báo task JIRA tới channel 3 người liên quan"],
+  value:"Thay thế chấm chứng từ tay & dò bằng mắt (dễ nhầm), kiểm soát phong tỏa chính xác và tức thời hơn.",
+  roadmap:[
+    {t:"Xây Document Classification Engine (105C)",d:"Định nghĩa rule phân loại 105C, huấn luyện engine đọc file Excel từ OPS-2 và gán mã chứng từ."},
+    {t:"Xây File Import & Filing Bot",d:"Tự động import vào backend và lưu file đúng vị trí trên ổ K theo cấu trúc thư mục chuẩn."},
+    {t:"Xây Blacklist/Hold Screening Engine",d:"Thiết lập rule quét tên file/nội dung để xác định phong tỏa, kiểm thử với dữ liệu thực tế."},
+    {t:"Tích hợp Alert Engine (JIRA)",d:"Tự động tạo task JIRA và route đến đúng channel/nhóm phụ trách khi có cảnh báo phong tỏa."},
+    {t:"Tối ưu rule theo phản hồi thực tế",d:"Theo dõi tỉ lệ sai/đúng, cập nhật rule phân loại và screening định kỳ."}]},
+{id:"OPS-5", name:"Gen Form & Hợp đồng tự động theo template", team:"OPS", group:"OPS — HCM Ops", priority:"TB", owner:"OPS HCM", complexity:"Thấp – Trung bình", status:"Đề xuất mới",
+  mucTieu:"Tool tự sinh form/hợp đồng (vd hợp đồng, form phong tỏa giải tỏa) theo template chuẩn từ thông tin lãi suất & loại hồ sơ KH (vd hồ sơ vay Trang Thái).",
+  engine:["Template-based Form Generation Engine","Knowledge Base template chuẩn (tích hợp Kiro skills)"],
+  engineDetail:[
+    {n:"Template-based Form Generation Engine",d:"Nhận input (thông tin lãi suất, loại KH/hồ sơ) và tự động điền vào template chuẩn tương ứng để xuất ra form/hợp đồng hoàn chỉnh, giảm soạn tay từng trường hợp."},
+    {n:"Knowledge Base template chuẩn",d:"Lưu trữ các template chuẩn theo từng loại hồ sơ (kể cả hồ sơ ngoại lệ như Trang Thái), tích hợp skill Kiro để engine chọn đúng template và điền đúng trường."}],
+  input:["Thông tin lãi suất cần nhập","Loại KH/hồ sơ (vd Trang Thái — có form riêng)","Template chuẩn theo loại hồ sơ"],
+  output:["Form/hợp đồng hoàn chỉnh đúng template","Quản lý các trường hợp ngoại lệ hồ sơ vay"],
+  value:"Giảm thời gian soạn tay từng form lãi suất/hợp đồng, chuẩn hóa template, giảm sai sót cho HCM Ops.",
+  roadmap:[
+    {t:"Chuẩn hóa kho template",d:"Tập hợp toàn bộ template form/hợp đồng hiện dùng, chuẩn hóa thành format có thể điền tự động."},
+    {t:"Xây Form Generation Engine cơ bản",d:"Pilot cho loại hồ sơ phổ biến nhất tại HCM Ops, kiểm thử độ chính xác điền trường."},
+    {t:"Mở rộng cho hồ sơ ngoại lệ (Trang Thái...)",d:"Bổ sung logic xử lý các loại hồ sơ có form riêng."},
+    {t:"Mở rộng sang các loại form khác",d:"Áp dụng engine cho các loại form/hợp đồng khác ngoài lãi suất."}]},
+{id:"OPS-6", name:"Đối chiếu thay đổi thông tin KH (Chi nhánh)", team:"OPS", group:"OPS — Chi nhánh", priority:"TB", owner:"OPS chi nhánh", complexity:"Trung bình", status:"Đề xuất mới",
+  mucTieu:"AI so sánh file thông tin KH mới nhận với bản lưu hiện tại, phát hiện sai khác — thay cho việc dò bằng mắt (dễ nhầm) khi review hồ sơ chi nhánh.",
+  engine:["Document Diff/Comparison Engine — OCR + so khớp trường dữ liệu"],
+  engineDetail:[{n:"Document Diff/Comparison Engine",d:"Dùng OCR để đọc file thông tin KH mới (scan/ảnh/PDF), so khớp từng trường dữ liệu với bản lưu hiện tại trong hệ thống, liệt kê các trường có sự khác biệt và mức độ rủi ro."}],
+  input:["File thông tin KH mới (hồ sơ chi nhánh gửi review)","Bản lưu thông tin KH hiện tại"],
+  output:["Báo cáo các trường thông tin khác biệt","Cảnh báo rủi ro sai lệch thông tin KH"],
+  value:"Giảm sai sót do dò tay khi review hồ sơ chi nhánh, tăng tốc đối chiếu thông tin KH.",
+  roadmap:[
+    {t:"Xây OCR + so khớp cơ bản",d:"Áp dụng cho 1 loại hồ sơ phổ biến nhất tại chi nhánh, kiểm thử độ chính xác OCR."},
+    {t:"Mở rộng cho các loại hồ sơ/biểu mẫu khác",d:"Bổ sung thêm các loại hồ sơ/biểu mẫu chi nhánh khác vào engine so sánh."}]},
+{id:"MAR-1", name:"Quản lý Pricing lãi tiền gửi", team:"Margin", group:"Margin", priority:"Thấp", owner:"Margin (chị Hòa)", complexity:"Thấp – Trung bình", status:"Đề xuất mới",
+  inputType:["Backend MCP","Manual input"],
+  mucTieu:"Quản lý & cập nhật bảng giá lãi tiền gửi tập trung, tránh sai sót khi có nhiều mức giá chặn theo nhóm KH. Bổ sung MCP biểu lãi suất để kéo data thị trường real-time. Tính RTT (Return To Term) áp dụng chung cho iMax, KH mass và KH VIP. Khi add sản phẩm mới, AI tự build công thức Pricing phù hợp.",
+  engine:["Pricing Management Engine — quản lý bảng giá & lịch sử thay đổi","MCP Biểu Lãi Suất — kéo lãi suất thị trường real-time","RTT Calculator — tính Return To Term cho iMax / KH mass / KH VIP","AI Pricing Formula Builder — tự build công thức khi add sản phẩm mới"],
+  engineDetail:[
+    {n:"Pricing Management Engine",d:"Lưu trữ tập trung bảng giá lãi tiền gửi, theo dõi lịch sử mọi thay đổi, tự động cảnh báo khi có các mức giá chặn xung đột nhau theo nhóm KH/sản phẩm."},
+    {n:"MCP Biểu Lãi Suất",d:"Kết nối MCP với nguồn biểu lãi suất thị trường (NHNN, liên ngân hàng...) để tự động cập nhật lãi suất tham chiếu theo thời gian thực, làm cơ sở cho định giá tiền gửi."},
+    {n:"RTT Calculator",d:"Tính Return To Term (RTT) cho 3 phân khúc: iMax, KH mass và KH VIP — mỗi phân khúc có logic tính RTT riêng, đảm bảo biên lợi nhuận và cạnh tranh thị trường."},
+    {n:"AI Pricing Formula Builder",d:"Khi Margin thêm sản phẩm tiền gửi mới, AI tự phân tích đặc tính sản phẩm, tham chiếu lãi suất thị trường và lịch sử giá cả để đề xuất công thức Pricing phù hợp — giảm thời gian định giá thủ công."}],
+  input:["Bảng giá lãi tiền gửi hiện tại","Biểu lãi suất thị trường (MCP)","Danh sách sản phẩm tiền gửi","Phân khúc KH (iMax/mass/VIP)"],
+  output:["Bảng pricing cập nhật, có lịch sử thay đổi","Kết quả RTT theo phân khúc KH","Công thức Pricing cho sản phẩm mới","Cảnh báo khi có giá chặn xung đột"],
+  value:"Quản lý pricing tập trung, tự động hóa tính RTT đa phân khúc, rút ngắn thời gian định giá sản phẩm mới nhờ AI.",
+  roadmap:[
+    {t:"Số hóa bảng giá hiện tại",d:"Chuyển bảng giá lãi tiền gửi và các mức giá chặn sang hệ thống quản lý tập trung."},
+    {t:"Xây cơ chế lịch sử & cảnh báo xung đột",d:"Lưu lịch sử thay đổi, tự động phát hiện và cảnh báo các mức giá chặn xung đột."}]},
+{id:"MAR-2", name:"Tự động tính RTT/Lãi & Đề xuất bán (Margin Call Automation)", team:"Margin", group:"Margin", priority:"Cao", owner:"Margin (chị Hòa)", complexity:"Trung bình – Cao", status:"Đề xuất mới, ưu tiên cao",
+  inputType:["Backend MCP","Manual input"],
+  mucTieu:"Tự động import nhiều file giá chặn, tính RTT/lãi và đề xuất khối lượng cần bán cho từng trường hợp — thay quy trình import nhiều file thủ công đang rất lâu. Tính RTT áp dụng đồng nhất cho iMax, KH mass và KH VIP. Khi thêm sản phẩm mới, AI tự build công thức Pricing phù hợp từ lịch sử và biểu lãi suất MCP.",
+  engine:["Margin Calculation Engine — tính RTT, lãi theo nhiều file giá chặn","RTT Multi-Segment Engine — iMax / KH mass / KH VIP","Recommendation Engine — đề xuất khối lượng/sản phẩm cần bán theo từng KH","AI Pricing Formula Builder — tự build công thức khi add sản phẩm mới"],
+  engineDetail:[
+    {n:"Margin Calculation Engine",d:"Tự động đọc và import nhiều file giá chặn cùng lúc, tính toán RTT (tỷ lệ tài sản đảm bảo) và lãi vay margin cho từng KH, thay cho việc import & tính tay từng file."},
+    {n:"RTT Multi-Segment Engine",d:"Tính RTT theo 3 phân khúc KH: iMax (VIP cao cấp), KH mass (phổ thông) và KH VIP — mỗi phân khúc có logic tính RTT và ngưỡng cảnh báo riêng, đảm bảo phù hợp với chính sách từng nhóm."},
+    {n:"Recommendation Engine",d:"Dựa trên kết quả tính RTT/lãi và danh mục/dư nợ của KH, đề xuất khối lượng và sản phẩm cụ thể cần bán để đưa KH về ngưỡng an toàn."},
+    {n:"AI Pricing Formula Builder",d:"Khi Margin thêm sản phẩm tiền gửi/margin mới, AI tự phân tích đặc tính sản phẩm và tham chiếu biểu lãi suất MCP để đề xuất công thức Pricing phù hợp — giảm thời gian định giá thủ công."}],
+  input:["Nhiều file giá chặn (hiện phải import từng file)","Dữ liệu danh mục & dư nợ margin của KH","Biểu lãi suất thị trường (MCP)","Phân khúc KH (iMax/mass/VIP)"],
+  output:["Kết quả tính RTT/lãi tổng hợp theo phân khúc","Đề xuất khối lượng cần bán theo từng trường hợp/KH","Công thức Pricing cho sản phẩm mới"],
+  value:"Giảm mạnh thời gian xử lý (hiện tại import nhiều file rất lâu), custom theo từng KH và phân khúc, hỗ trợ RM/Margin phản ứng nhanh với call margin.",
+  roadmap:[
+    {t:"Tự động hóa import & tính toán cho 1 KH",d:"Xây pipeline đọc nhiều file giá chặn cùng lúc, tính RTT/lãi cho 1 trường hợp KH cụ thể để kiểm thử độ chính xác."},
+    {t:"Xây Recommendation Engine",d:"Sinh đề xuất khối lượng/sản phẩm cần bán dựa trên kết quả tính toán và danh mục KH."},
+    {t:"Mở rộng cho RM/KH tự thao tác",d:"Cho phép RM hoặc KH tự chạy công cụ, xác thực qua OTP gửi email chính chủ trước khi thực hiện."}]},
+{id:"MAR-3", name:"Tự động hóa Tờ trình & Phê duyệt Margin (iWealth)", team:"Margin", group:"Margin", priority:"Cao", owner:"Margin (đầu mối: anh Huy viết cụ thể yêu cầu; painpoint: chị Linh Lưu)", complexity:"Cao", status:"Đề xuất mới",
+  inputType:["Backend MCP","Jira/BPM","Manual input"],
+  mucTieu:"Tự động sinh tờ trình (hạn mức, khung cổ phiếu, cấu trúc) cho 1 nhóm KH dựa trên chính sách KH, dữ liệu iWealth/phí/lãi suất; kèm checklist hồ sơ tổng quan. Giải quyết painpoint của chị Linh Lưu: tờ trình lưu ở đâu không rõ, nhiều account không có historical data → hệ thống phải thể hiện TOÀN BỘ lịch sử tờ trình (giá được duyệt, ngày, người duyệt) để CEO nắm lịch sử giá trình và theo dõi xu hướng phê duyệt.",
+  engine:["Proposal Generation Engine — sinh tờ trình từ dữ liệu chính sách KH","Checklist Engine — kiểm tra hồ sơ đủ/thiếu","Approval Workflow Engine — luồng phê duyệt Round 1","Historical Proposal Tracker — lịch sử tờ trình & giá được duyệt","Knowledge Base — feed tờ trình cũ để tham chiếu"],
+  engineDetail:[
+    {n:"Proposal Generation Engine",d:"Tự động sinh tờ trình (hạn mức, khung cổ phiếu, cấu trúc) cho 1 nhóm KH dựa trên chính sách KH hiện hành, dữ liệu iWealth, phí giao dịch và lãi suất, tham chiếu các tờ trình cũ tương tự."},
+    {n:"Checklist Engine",d:"Tự động kiểm tra hồ sơ kèm tờ trình đã đủ hay còn thiếu giấy tờ gì, đưa ra checklist tổng quan cho người xử lý."},
+    {n:"Approval Workflow Engine",d:"Định tuyến tờ trình qua luồng phê duyệt Round 1, theo dõi trạng thái và người phê duyệt."},
+    {n:"Historical Proposal Tracker",d:"Lưu trữ toàn bộ lịch sử tờ trình theo KH/nhóm KH: tờ trình nào đã được trình, ngày nào, giá được duyệt là bao nhiêu, ai duyệt. Dashboard cho CEO xem lịch sử giá trình và xu hướng phê duyệt — giải quyết trực tiếp painpoint 'không biết tờ trình cũ lưu ở đâu, không có historical data' của chị Linh Lưu."},
+    {n:"Knowledge Base (tờ trình cũ)",d:"Lưu trữ tờ trình cũ làm dữ liệu tham chiếu để Proposal Generation Engine học cách trình bày và lập luận tương tự."}],
+  input:["Chính sách KH, hạn mức khung cổ phiếu","Dữ liệu iWealth partner, phí giao dịch, lãi suất (backend MCP)","Tờ trình cũ (làm dữ liệu KB + historical)","Luồng phê duyệt BPM/Jira"],
+  output:["Tờ trình tự động theo nhóm KH","Checklist hồ sơ tổng quan","Luồng phê duyệt Round 1","Dashboard lịch sử tờ trình + giá được duyệt (CEO view)"],
+  value:"Giảm thời gian setup tờ trình (hiện mất ~1 ngày/case), CEO nắm được toàn bộ lịch sử giá trình và xu hướng phê duyệt, không còn tình trạng mất dữ liệu lịch sử.",
+  roadmap:[
+    {t:"Xây Historical Proposal Tracker (ưu tiên)",d:"Số hóa và nhập lại toàn bộ tờ trình cũ vào hệ thống; xây dashboard lịch sử tờ trình cho CEO xem — giải quyết ngay painpoint thiếu historical data."},
+    {t:"Xây Knowledge Base từ tờ trình cũ",d:"Dùng lịch sử tờ trình đã số hóa làm dữ liệu tham chiếu cho engine sinh tờ trình."},
+    {t:"Xây Proposal Generation Engine + Checklist (Round 1)",d:"Tự động hóa sinh tờ trình cơ bản và checklist hồ sơ tổng quan cho 1 nhóm KH."},
+    {t:"Mở rộng Approval Workflow & tích hợp BPM",d:"Hoàn thiện luồng phê duyệt Round 1 qua BPM, kết nối với Historical Tracker để tự động lưu giá được duyệt."}]},
+{id:"MAR-4", name:"Theo dõi Khoản vay Margin (Snapshot & Alert)", team:"Margin", group:"Margin", priority:"TB", owner:"Margin", complexity:"Trung bình", status:"Đề xuất mới",
+  mucTieu:"Snapshot khoản vay margin của từng KH theo thời gian (số tiền tại từng mốc), lịch sự kiện trả gốc/nộp lãi/vi phạm, cảnh báo & gợi ý action.",
+  engine:["Loan Monitoring Engine — snapshot khoản vay theo thời gian","Event & Alert Engine — lịch sự kiện trả gốc/nộp lãi/vi phạm"],
+  engineDetail:[
+    {n:"Loan Monitoring Engine",d:"Chụp snapshot dư nợ khoản vay margin của từng KH theo từng mốc thời gian, cho phép xem lại lịch sử biến động số tiền vay theo ngày."},
+    {n:"Event & Alert Engine",d:"Theo dõi lịch các sự kiện trả gốc, nộp lãi, điều kiện vi phạm; chủ động cảnh báo trước hạn và gợi ý hành động (vd nhắc nộp lãi, cảnh báo vi phạm)."}],
+  input:["Dữ liệu khoản vay margin của KH","Lịch trả gốc, nộp lãi, điều kiện vi phạm"],
+  output:["Snapshot khoản vay theo mốc thời gian (số tiền tại từng ngày)","Lịch sự kiện & cảnh báo vi phạm/sắp đến hạn"],
+  value:"Chủ động quản lý rủi ro margin, nhắc nhở kịp thời trước các mốc quan trọng của khoản vay.",
+  roadmap:[
+    {t:"Xây Loan Monitoring Engine",d:"Thiết lập snapshot dư nợ khoản vay margin theo từng KH theo thời gian."},
+    {t:"Xây lịch sự kiện cơ bản",d:"Tổng hợp lịch trả gốc/nộp lãi/điều kiện vi phạm cho từng khoản vay."},
+    {t:"Tích hợp Alert & action gợi ý",d:"Tự động cảnh báo trước hạn và gợi ý hành động xử lý cho Margin/RM."}]},
+{id:"PT-1", name:"Agent Phân tích Doanh nghiệp & Đọc BCTC / Annual Report", team:"Phân tích / PM Quỹ", group:"Phân tích / PM Quỹ", priority:"Cao", owner:"Phân tích / PM Quỹ, phối hợp DCM & Bank", complexity:"Cao", status:"Đề xuất mới",
+  mucTieu:"Xây dựng agent workflow phân tích doanh nghiệp: skill báo cáo lần đầu, cập nhật KQKD hàng quý, MCP đọc BCTC đầy đủ & scan Annual Report.",
+  engine:["Report Generation Skill — báo cáo doanh nghiệp lần đầu & cập nhật quý","MCP đọc BCTC (full) — trích xuất dữ liệu tài chính","MCP đọc Annual Report — scan & extract text/dữ liệu từ PDF","PDF Analysis Engine (nền chung cho 2 MCP trên)"],
+  engineDetail:[
+    {n:"Report Generation Skill",d:"Tự động soạn báo cáo phân tích doanh nghiệp lần đầu (initiation) và cập nhật theo kết quả kinh doanh hàng quý, theo cấu trúc chuẩn của team Phân tích."},
+    {n:"MCP đọc BCTC (full)",d:"Trích xuất toàn bộ số liệu từ báo cáo tài chính (bảng cân đối, KQKD, lưu chuyển tiền tệ, thuyết minh) thành dữ liệu có cấu trúc để tính toán chỉ số."},
+    {n:"MCP đọc Annual Report",d:"Scan và extract nội dung text/số liệu từ báo cáo thường niên (PDF dài), tìm các phần liên quan đến chiến lược, rủi ro, kế hoạch kinh doanh."},
+    {n:"PDF Analysis Engine",d:"Nền tảng xử lý PDF chung (OCR + parsing layout) phục vụ cả 2 MCP đọc BCTC và Annual Report ở trên."}],
+  input:["Báo cáo tài chính (BCTC) đầy đủ","Annual Report (PDF)","Kết quả kinh doanh hàng quý"],
+  output:["Báo cáo doanh nghiệp lần đầu & cập nhật quý","Dữ liệu trích xuất chuẩn hóa từ BCTC/Annual Report"],
+  value:"Tăng tốc & chuẩn hóa quy trình phân tích doanh nghiệp, tiết kiệm thời gian cho PM Quỹ; phối hợp DCM/Bank cho usecase khu vực miền Nam.",
+  roadmap:[
+    {t:"Xây PDF Analysis Engine nền tảng",d:"Xây cơ chế OCR + parsing PDF chung cho cả BCTC và Annual Report."},
+    {t:"Xây MCP đọc BCTC",d:"Trích xuất số liệu tài chính có cấu trúc từ BCTC, kiểm thử với vài doanh nghiệp mẫu."},
+    {t:"Xây MCP đọc Annual Report + Report Generation Skill",d:"Scan Annual Report lấy thông tin định tính, kết hợp số liệu BCTC để sinh báo cáo lần đầu."},
+    {t:"Tự động cập nhật theo quý",d:"Khi có KQKD mới, tự động cập nhật báo cáo theo quý và mở rộng phối hợp DCM/Bank."}]},
+{id:"PBS-1", name:"Phân tích Danh mục, Persona KH & Khuyến nghị Tái cấu trúc", team:"PBS", group:"PBS (Hà)", priority:"Cao", owner:"PBS (chị Linh)", complexity:"Cao", status:"Đề xuất mới",
+  inputType:["Backend MCP","PowerBI"],
+  mucTieu:"Phân tích danh mục đầu tư của KH dựa trên thông tin thị trường + dữ liệu AUM, đưa ra khuyến nghị tái cấu trúc. Mở rộng: xây persona (chân dung) từng KH của RM để PBS/chị Linh nắm rõ Key Customer của mỗi RM, hiểu Movement của KH (dòng tiền vào/ra, hành vi giao dịch), phát hiện sớm nguy cơ churn (tại sao KH có vấn đề, rủi ro rời bỏ không, action cụ thể là gì) — tận dụng dashboard PBS hiện tại chị Linh chưa khai thác hết.",
+  engine:["Portfolio Analysis Engine — phân tích cấu trúc danh mục so với thị trường","Customer Persona Engine — xây chân dung KH từng RM","Movement Tracking Engine — theo dõi hành vi & dòng tiền KH","Churn Risk Engine — phát hiện rủi ro KH rời bỏ + action gợi ý","Recommendation Engine — khuyến nghị tái cấu trúc danh mục"],
+  engineDetail:[
+    {n:"Portfolio Analysis Engine",d:"So sánh cấu trúc danh mục hiện tại của KH (theo dữ liệu AUM) với diễn biến/thông tin thị trường, đánh giá mức độ tập trung rủi ro, hiệu quả phân bổ tài sản."},
+    {n:"Customer Persona Engine",d:"Xây dựng chân dung (persona) từng KH dựa trên dữ liệu giao dịch, AUM, lịch sử tương tác — giúp PBS và RM nắm rõ Key Customer của mình: ai là KH quan trọng nhất, đặc điểm đầu tư, khẩu vị rủi ro. Giải quyết trực tiếp painpoint của chị Linh: chưa nắm được chân dung KH từ dashboard PBS hiện tại."},
+    {n:"Movement Tracking Engine",d:"Theo dõi movement của KH theo thời gian: dòng tiền vào/ra, thay đổi danh mục, tần suất giao dịch, sản phẩm đang dịch chuyển — giúp RM phát hiện sớm KH đang 'dịch chuyển' khỏi SSS."},
+    {n:"Churn Risk Engine",d:"Phân tích nguyên nhân KH có vấn đề (giảm AUM, giảm giao dịch, khiếu nại...), đánh giá mức độ rủi ro rời bỏ theo thang điểm, đề xuất action cụ thể cho RM/PBS để giữ chân KH."},
+    {n:"Recommendation Engine",d:"Dựa trên kết quả phân tích persona & danh mục, sinh khuyến nghị tái cấu trúc danh mục (tăng/giảm tỷ trọng, thay đổi mã/nhóm ngành) phù hợp khẩu vị rủi ro từng KH."}],
+  input:["Dữ liệu AUM từng KH","Thông tin thị trường","Lịch sử giao dịch & tương tác KH","Dashboard PBS hiện tại (PowerBI)"],
+  output:["Persona (chân dung) từng KH của RM","Key Customer list theo RM","Cảnh báo movement & churn risk theo KH","Action plan giữ chân KH có rủi ro","Khuyến nghị tái cấu trúc danh mục"],
+  value:"Chị Linh và PBS nắm rõ chân dung từng KH, phát hiện sớm churn risk và có action plan cụ thể — tận dụng data PBS đang có mà chưa khai thác hết.",
+  roadmap:[
+    {t:"Khai thác & chuẩn hóa data PBS hiện có",d:"Đánh giá dashboard PBS hiện tại, chuẩn hóa data KH/AUM/giao dịch làm input cho các engine."},
+    {t:"Xây Customer Persona Engine (ưu tiên)",d:"Build persona cơ bản từng KH cho từng RM; ra được Key Customer list. Giải quyết ngay painpoint chị Linh."},
+    {t:"Xây Movement Tracking & Churn Risk Engine",d:"Theo dõi movement KH, tính điểm churn risk, gợi ý action plan cho RM/PBS."},
+    {t:"Xây Portfolio Analysis & Recommendation Engine",d:"Kết hợp persona + danh mục để sinh khuyến nghị tái cấu trúc cá nhân hóa theo từng KH."},
+    {t:"Tích hợp vào dashboard PBS + vận hành định kỳ",d:"Tích hợp toàn bộ engine vào dashboard PBS hiện tại, vận hành theo lịch tuần/tháng."}]},
+{id:"PBS-2", name:"Backtest Danh mục Khách hàng", team:"PBS", group:"PBS (Hà)", priority:"TB", owner:"PBS", complexity:"Cao", status:"Đề xuất mới",
+  mucTieu:"Simulate các kịch bản thị trường khác nhau và tính lãi/lỗ cho danh mục hiện tại của KH (ví dụ KH iPower nắm nhiều cổ phiếu).",
+  engine:["Backtest / Simulation Engine — chạy kịch bản thị trường trên danh mục thực tế của KH"],
+  engineDetail:[{n:"Backtest / Simulation Engine",d:"Áp các kịch bản thị trường (lịch sử hoặc giả định) lên danh mục thực tế hiện tại của KH, tính toán lãi/lỗ giả định theo từng kịch bản để minh chứng định lượng cho khuyến nghị đầu tư."}],
+  input:["Danh mục cổ phiếu hiện tại của KH","Dữ liệu lịch sử thị trường, kịch bản giả định"],
+  output:["Kết quả backtest theo từng kịch bản (lãi/lỗ giả định)"],
+  value:"Minh chứng định lượng cho khuyến nghị đầu tư, tăng độ tin tưởng của KH vào tư vấn của RM/PBS.",
+  roadmap:[
+    {t:"Xây engine backtest cơ bản",d:"Chạy được 1 vài kịch bản chuẩn (vd thị trường giảm 10%, 20%) trên danh mục KH mẫu."},
+    {t:"Mở rộng kịch bản & tích hợp PBS-1",d:"Thêm nhiều kịch bản thị trường, liên kết kết quả backtest với khuyến nghị tái cấu trúc ở PBS-1."}]},
+{id:"PBS-3", name:"Quét Tin tức & Phân phối nội dung cho KH", team:"PBS", group:"PBS (Hà)", priority:"TB", owner:"PBS", complexity:"Trung bình", status:"Đề xuất mới",
+  mucTieu:"Quét nội dung tin tức/thị trường liên quan và phân phối thông tin phù hợp cho từng KH, làm dày \"knowledge tương tác KH\" — giải quyết vấn đề touching point ở miền Nam.",
+  engine:["News/Content Scanning Engine — quét & lọc tin tức theo chủ đề/mã liên quan","Distribution Engine — cá nhân hóa & gửi nội dung tới KH"],
+  engineDetail:[
+    {n:"News/Content Scanning Engine",d:"Quét liên tục các nguồn tin tức/thị trường, lọc theo chủ đề và mã cổ phiếu liên quan đến danh mục/khẩu vị của từng nhóm KH."},
+    {n:"Distribution Engine",d:"Cá nhân hóa nội dung tin tức đã lọc theo từng KH/nhóm KH và tự động gửi đi, tạo thêm điểm chạm (touchpoint) thường xuyên."}],
+  input:["Nguồn tin tức/thị trường","Danh sách KH & khẩu vị/danh mục quan tâm"],
+  output:["Nội dung tin tức được lọc, gửi tới KH theo nhóm/cá nhân"],
+  value:"Tăng điểm chạm (touchpoint) với KH, hỗ trợ RM miền Nam tương tác đều & đúng nhu cầu, hỗ trợ bán sản phẩm.",
+  roadmap:[
+    {t:"Xây News Scanning Engine cơ bản",d:"Quét & lọc tin tức theo nhóm chủ đề/mã cổ phiếu chính."},
+    {t:"Xây Distribution Engine theo nhóm KH",d:"Phân phối nội dung tới các nhóm KH theo khẩu vị chung."},
+    {t:"Cá nhân hóa theo từng KH (kết nối 1South)",d:"Dùng dữ liệu hành vi/danh mục từ 1South để cá nhân hóa nội dung tới từng KH cụ thể."}]},
+{id:"FI-1", name:"Quản lý Portfolio Khách hàng (Markets/Corp)", team:"FI/Corp", group:"FI/Corp", priority:"Cao", owner:"FI/Corp, cần giải pháp data từ DWH/IT", complexity:"Cao (phụ thuộc tích hợp dữ liệu)", status:"BRD đang xây",
+  mucTieu:"Xây view tổng thể 1 khách hàng: toàn bộ mối quan hệ, tài sản, sản phẩm Markets, tình trạng — 1 snapshot duy nhất, bao gồm cả tài sản ngoài TCBS (qua tài khoản 105C).",
+  engine:["Customer Portfolio 360 Engine (Markets) — tổng hợp asset/liabilities/product theo KH (hiện chỉ có theo TCPH)","Data Integration Layer — kết nối DWH + Backend (giao dịch tại TCBS) + PBI (theo chiều product)"],
+  engineDetail:[
+    {n:"Customer Portfolio 360 Engine (Markets)",d:"Tổng hợp tài sản, công nợ (liabilities), sản phẩm Markets theo từng KH thành 1 snapshot duy nhất — hiện hệ thống chỉ có view theo TCPH (tổ chức phát hành), cần mở rộng theo KH."},
+    {n:"Data Integration Layer",d:"Kết nối và đồng bộ dữ liệu từ DWH, Backend (giao dịch tại TCBS) và PBI (theo chiều product) thành 1 nguồn dữ liệu thống nhất cho Customer Portfolio 360 Engine."}],
+  input:["Dữ liệu giao dịch backend (chỉ có nếu giao dịch tại TCBS)","Dữ liệu DWH","PBI theo chiều product","Thông tin tài khoản 105C (giao dịch ngoài TCBS)"],
+  output:["Snapshot trạng thái 1 KH: tài sản, sản phẩm, mối quan hệ","Overview tổng số KH & trạng thái","View tài sản ngoài TCBS (qua 105C) để đưa offer phù hợp"],
+  value:"Thay thế việc user tự quản lý KH qua Excel thủ công; có cái nhìn đầy đủ để đưa offer đúng — đặc biệt với KH có tài sản ngoài hệ thống TCBS.",
+  roadmap:[
+    {t:"Xây Data Integration Layer (DWH + Backend)",d:"Kết nối DWH và Backend giao dịch tại TCBS, chuẩn hóa dữ liệu theo KH."},
+    {t:"Xây view cơ bản cho KH có giao dịch tại TCBS",d:"Tạo snapshot tài sản/sản phẩm/mối quan hệ cho nhóm KH có dữ liệu đầy đủ tại TCBS."},
+    {t:"Bổ sung view tài sản ngoài TCBS (105C)",d:"Tích hợp thông tin tài khoản 105C để có view đầy đủ tài sản ngoài hệ thống."},
+    {t:"Overview toàn bộ KH + tích hợp sao kê đầy đủ",d:"Mở overview tổng số KH & trạng thái, tích hợp sao kê tài khoản Cổ phiếu + Trái phiếu."}]},
+{id:"FI-2", name:"Quản lý Sự kiện & Nhắc nhở (Markets)", team:"FI/Corp", group:"FI/Corp", priority:"TB", owner:"FI/Corp", complexity:"Trung bình", status:"BRD đang xây",
+  mucTieu:"Tổng hợp toàn bộ sự kiện/cam kết của khách hàng theo thời gian (hiện tại Calendar backend chỉ theo User/Product, chưa có view tổng thể theo KH), tự động nhắc & gợi ý action.",
+  engine:["Event Aggregation Engine — tổng hợp lịch sự kiện theo KH (không chỉ theo User/Product)","Alert/Reminder Engine — nhắc trước mỗi sự kiện","Action Recommendation Engine — gợi ý action (reinvest, switch sản phẩm...)"],
+  engineDetail:[
+    {n:"Event Aggregation Engine",d:"Gộp toàn bộ sự kiện/cam kết từ Calendar backend (hiện đang theo User/Product) thành 1 view tổng thể theo từng KH, hoặc theo toàn bộ KH theo dòng thời gian."},
+    {n:"Alert/Reminder Engine",d:"Tự động nhắc trước mỗi sự kiện sắp xảy ra (đến hạn, đáo hạn...) cho team phụ trách KH đó."},
+    {n:"Action Recommendation Engine",d:"Dựa trên loại sự kiện, gợi ý hành động cụ thể (vd có nên reinvest không, switch sang sản phẩm gì) cho RM/team Markets."}],
+  input:["Dữ liệu Calendar backend (hiện theo User/Product)"],
+  output:["Lịch sự kiện & cam kết tổng thể theo từng KH / toàn bộ KH theo thời gian","Nhắc nhở tự động trước sự kiện sắp xảy ra","Gợi ý action cho team (reinvest được không/switch sản phẩm gì)"],
+  value:"Không bỏ lỡ sự kiện/cam kết quan trọng của KH, tăng cơ hội tái đầu tư & giữ KH đúng thời điểm.",
+  roadmap:[
+    {t:"Xây Event Aggregation Engine theo KH",d:"Chuyển đổi dữ liệu Calendar từ theo User/Product sang theo KH, tạo view tổng thể."},
+    {t:"Xây Alert/Reminder Engine cơ bản",d:"Tự động nhắc trước các sự kiện sắp tới cho team phụ trách."},
+    {t:"Xây Action Recommendation Engine",d:"Sinh gợi ý hành động (reinvest/switch sản phẩm) theo từng loại sự kiện."},
+    {t:"Kết nối thêm MCP khác của Markets",d:"Tích hợp với các MCP ngành dọc khác (vd Cost of Fund — FI-5) để gợi ý sâu hơn."}]},
+{id:"FI-3", name:"Tự động hóa Tờ trình & Báo cáo Corp/Markets", team:"FI/Corp", group:"FI/Corp", priority:"TB", owner:"FI/Corp + Markets", complexity:"Trung bình – Cao", status:"Đề xuất mới",
+  mucTieu:"Tự động hóa các văn bản lặp lại của Corp/Markets: tờ trình hạn mức vay vốn, bản chào (standardize), báo cáo gửi lender, thông cáo báo chí; phối hợp Markets review mẫu hợp đồng.",
+  engine:["Document/Report Generation Engine — multi-template cho tờ trình, bản chào, báo cáo lender, thông cáo báo chí","Contract Review Engine — review mẫu hợp đồng liên quan nghiệp vụ Markets"],
+  engineDetail:[
+    {n:"Document/Report Generation Engine",d:"Sinh tự động nhiều loại văn bản lặp lại (tờ trình hạn mức vay vốn, bản chào chuẩn hóa, báo cáo gửi lender, thông cáo báo chí) từ dữ liệu hạn mức/dư nợ và thông tin cần công bố, theo multi-template."},
+    {n:"Contract Review Engine",d:"Đọc và review mẫu hợp đồng liên quan đến nghiệp vụ Markets, đối chiếu với checklist/điều khoản chuẩn, phối hợp team Markets để xác nhận."}],
+  input:["Dữ liệu hạn mức/dư nợ vay vốn","Mẫu hợp đồng Markets","Thông tin lender, thông tin cần công bố"],
+  output:["Tờ trình hạn mức vay vốn Corp","Bản chào chuẩn hóa","Báo cáo gửi lender, thông cáo báo chí","Kết quả review mẫu hợp đồng Markets"],
+  value:"Chuẩn hóa & tăng tốc các văn bản Corp/Markets lặp lại, giảm tải cho team FI khi soạn nhiều loại văn bản tương tự.",
+  roadmap:[
+    {t:"Xây Document Generation cho tờ trình & bản chào",d:"Tự động hóa tờ trình hạn mức vay vốn và bản chào chuẩn hóa từ dữ liệu hạn mức/dư nợ."},
+    {t:"Mở rộng Báo cáo lender & thông cáo báo chí",d:"Bổ sung template cho báo cáo gửi lender và thông cáo báo chí."},
+    {t:"Xây Contract Review Engine (phối hợp Markets)",d:"Review mẫu hợp đồng Markets, đối chiếu checklist điều khoản cùng team Markets."}]},
+{id:"FI-4", name:"Add-on 1South — Screening KH Corp tiềm năng", team:"FI/Corp", group:"FI/Corp + 1South", priority:"Cao", owner:"FI/Corp + 1South", complexity:"Cao", status:"Đề xuất mới (add-on)",
+  mucTieu:"Phát hiện cơ hội KH Corp phù hợp để 1South detect được cơ hội — chân dung KH \"cashcow\" có hoạt động tài chính mạnh, tìm contact tiếp cận (đi chung TCB/CIBG), bao gồm funding gapping (đi vay cho vay lại).",
+  engine:["Corp Screening Engine — tích hợp vào 1South, lọc KH theo chân dung tài chính mạnh","Contact Discovery Engine — tìm đầu mối tiếp cận qua TCB/CIBG"],
+  engineDetail:[
+    {n:"Corp Screening Engine",d:"Tích hợp vào 1South, lọc các doanh nghiệp có chân dung tài chính mạnh ('cashcow'), hoạt động tài chính sôi động — đặc biệt nhóm BĐS Khu công nghiệp, Bán lẻ — làm danh sách KH Corp tiềm năng cho FI/Corp."},
+    {n:"Contact Discovery Engine",d:"Với mỗi KH Corp tiềm năng, tìm đầu mối liên hệ phù hợp để tiếp cận, ưu tiên đi cùng network của TCB/CIBG."}],
+  input:["Dữ liệu tài chính doanh nghiệp (nhóm active hiện tại: BĐS Khu công nghiệp, Bán lẻ)","Nguồn contact/network từ TCB, CIBG"],
+  output:["Danh sách KH Corp tiềm năng kèm chân dung (cashcow, hoạt động tài chính mạnh)","Đầu mối liên hệ tiếp cận đi cùng TCB/CIBG"],
+  value:"Mở rộng nguồn KH Corp mới cho FI/Corp, tăng AUM & cơ hội funding gapping, tận dụng hạ tầng dữ liệu 1South.",
+  roadmap:[
+    {t:"Định nghĩa chân dung KH Corp mục tiêu",d:"Xác định tiêu chí 'cashcow' cho nhóm BĐS Khu công nghiệp, Bán lẻ, kết nối dữ liệu từ 1South."},
+    {t:"Xây Corp Screening Engine",d:"Lọc danh sách KH Corp tiềm năng theo chân dung đã định nghĩa."},
+    {t:"Xây Contact Discovery + pilot TCB/CIBG",d:"Tìm đầu mối tiếp cận và pilot tiếp cận thử với 1 nhóm KH Corp qua network TCB/CIBG."}]},
+{id:"FI-5", name:"COF & Báo cáo NHNN (Offshore Funding)", team:"FI/Corp", group:"FI/Corp", priority:"Thấp", owner:"FI/Corp (usecase của anh Long)", complexity:"Đã triển khai — chờ mở MCP", status:"Đã deploy, chờ mở MCP",
+  mucTieu:"Tính actual COF cho các khoản vay offshore, tổng hợp số dư vay/trả nợ nước ngoài báo cáo NHNN theo quy định pháp luật, báo cáo hạn mức/dư nợ tín dụng tại các thời điểm.",
+  engine:["COF Calculation Engine — tính actual Cost of Fund cho khoản vay offshore","Regulatory Reporting Engine — tổng hợp & xuất báo cáo NHNN theo quy định"],
+  engineDetail:[
+    {n:"COF Calculation Engine",d:"Tính actual Cost of Fund (chi phí huy động vốn thực tế) cho từng khoản vay offshore, đã được triển khai và chạy ổn định."},
+    {n:"Regulatory Reporting Engine",d:"Tổng hợp số dư vay/trả nợ nước ngoài và xuất báo cáo theo đúng mẫu quy định của NHNN, kèm báo cáo hạn mức/dư nợ tín dụng theo thời điểm."}],
+  input:["Dữ liệu khoản vay offshore","Số dư vay, trả nợ nước ngoài theo thời điểm"],
+  output:["Actual COF theo từng khoản vay","Báo cáo số dư vay/trả nợ nước ngoài gửi NHNN","Báo cáo số dư hạn mức, dư nợ tín dụng theo thời điểm"],
+  value:"Đảm bảo tuân thủ quy định NHNN, minh bạch chi phí huy động vốn — hệ thống đã deploy thành công, đang chờ mở MCP để kết nối rộng hơn.",
+  roadmap:[
+    {t:"Hệ thống tính COF & báo cáo (đã hoàn thành)",d:"Đã deploy và vận hành ổn định — không cần xây thêm."},
+    {t:"Mở MCP cho các usecase khác kết nối",d:"Cho phép FI-1, FI-3, MAR... kết nối và sử dụng dữ liệu COF qua MCP."}]},
+];
+
+const TEAMS=["Tổng hợp / CEO","1South","WA","WS","OPS","Margin","Phân tích / PM Quỹ","PBS","FI/Corp"];
+let curExpanded=new Set();
+
+// ── localStorage ───────────────────────────────────────────────
+function lsGet(k){try{return localStorage.getItem(k)||"";}catch(e){return "";}}
+function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+// ── Input types ────────────────────────────────────────────────
+const INPUT_TYPES=["Backend MCP","PowerBI","Jira/BPM","Manual input","Meeting Notes","Web"];
+function getInputTypes(id,task){
+  const s=lsGet("sss_input_"+id);
+  if(s){try{return JSON.parse(s);}catch(e){}}
+  return task.inputType||[];
+}
+function inputClass(l){
+  if(l==="Backend MCP")return"mcp";if(l==="PowerBI")return"pbi";
+  if(l==="Jira/BPM")return"jira";if(l==="Manual input")return"manual";
+  if(l==="Meeting Notes")return"meeting";if(l==="Web")return"web";
+  return"";
+}
+function renderInputBadges(types){
+  return(types||[]).map(it=>`<span class="input-badge ${inputClass(it)}">${it}</span>`).join("");
+}
+function toggleInputType(id,type,checked,cb){
+  const task=TASKS.find(t=>t.id===id);
+  const cur=[...getInputTypes(id,task)];
+  if(checked&&!cur.includes(type))cur.push(type);
+  else if(!checked){const i=cur.indexOf(type);if(i>-1)cur.splice(i,1);}
+  lsSet("sss_input_"+id,JSON.stringify(cur));
+  const sum=cb.closest("details").querySelector(".inp-sum");
+  if(sum)sum.innerHTML=renderInputBadges(cur)||'<span style="color:var(--muted);font-size:0.72rem">Chọn...</span>';
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function statusClass(s){
+  if(s.includes("Hoàn thành")||s.includes("Đã deploy"))return"b-done";
+  if(s.includes("đang xây")||s.includes("Đang xây"))return"b-prog";
+  return"b-prop";
+}
+function priClass(p){return p==="Cao"?"b-cao":p==="TB"?"b-tb":"b-thap";}
+function statSelClass(v){
+  const m={"Pending":"stat-pending","BRD":"stat-brd","Mock/Design":"stat-mockdesign","Build":"stat-build","GoLive":"stat-golive"};
+  return m[v]||"stat-pending";
+}
+function priSelClass(v){return v==="Cao"?"pri-cao":v==="TB"?"pri-tb":"pri-thap";}
+
+// ── Inline updaters ────────────────────────────────────────────
+function updateStat(id,val,sel){lsSet("sss_stat_"+id,val);sel.className="stat-sel "+statSelClass(val);}
+function updatePic(id,val){lsSet("sss_pic_"+id,val);}
+function updatePri(id,val,sel){lsSet("sss_pri_"+id,val);sel.className="pri-sel "+priSelClass(val);}
+function updateDate(id,field,val){
+  lsSet("sss_"+field+"_"+id,val);
+  const inp=document.querySelector(`input[data-id="${id}"][data-field="${field}"]`);
+  if(inp){inp.className="dt-inp"+(val?" has-date":"");}
+  renderGantt();
+}
+
+// ── Filters ────────────────────────────────────────────────────
+function initFilters(){
+  const statuses=[...new Set(TASKS.map(t=>t.status))];
+  const fs=document.getElementById("fStatus");
+  statuses.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;fs.appendChild(o);});
+  document.getElementById("fPriority").onchange=render;
+  fs.onchange=render;
+  document.getElementById("searchBox").oninput=render;
+}
+function resetFilters(){
+  document.getElementById("fPriority").value="";
+  document.getElementById("fStatus").value="";
+  document.getElementById("searchBox").value="";
+  render();
+}
+function filterTasks(){
+  const p=document.getElementById("fPriority").value,
+        s=document.getElementById("fStatus").value,
+        q=document.getElementById("searchBox").value.toLowerCase();
+  return TASKS.filter(t=>
+    (!p||t.priority===p)&&(!s||t.status===s)&&
+    (!q||t.name.toLowerCase().includes(q)||(t.owner||"").toLowerCase().includes(q)||t.id.toLowerCase().includes(q)||t.team.toLowerCase().includes(q))
+  );
+}
+function expandAll(open){curExpanded=open?new Set(TEAMS):new Set();render();}
+function toggleTeam(team){if(curExpanded.has(team))curExpanded.delete(team);else curExpanded.add(team);render();}
+
+// ── Gantt chart ────────────────────────────────────────────────
+const TEAM_COLORS={
+  "Tổng hợp / CEO":"#E2231A","1South":"#6e56cf","WA":"#0f7a8c","WS":"#d4860b",
+  "OPS":"#1f9d55","Margin":"#c2540a","Phân tích / PM Quỹ":"#0052cc","PBS":"#d63384","FI/Corp":"#86868b"
+};
+
+function renderGantt(){
+  const gantt=document.getElementById("ganttSection");
+  if(!gantt)return;
+
+  const rows=TASKS.map(t=>{
+    const brd=lsGet("sss_brd_"+t.id),mock=lsGet("sss_mock_"+t.id),
+          build=lsGet("sss_build_"+t.id),golive=lsGet("sss_golive_"+t.id);
+    const dates=[brd,mock,build,golive].filter(Boolean);
+    if(!dates.length)return null;
+    return{t,brd,mock,build,golive,dates};
+  }).filter(Boolean);
+
+  if(!rows.length){
+    gantt.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center;color:var(--muted);margin-bottom:20px">
+      <div style="font-size:1.8rem;margin-bottom:8px">📅</div>
+      <b style="color:var(--text);font-size:0.88rem">Chưa có dữ liệu timeline</b>
+      <p style="margin-top:5px;font-size:0.77rem">Điền ngày BRD / Mock / Build / GoLive trong bảng usecase bên dưới để xem Gantt chart tự động</p>
+    </div>`;
+    return;
+  }
+
+  const allD=rows.flatMap(r=>r.dates.map(d=>new Date(d)));
+  let minD=new Date(Math.min(...allD)),maxD=new Date(Math.max(...allD));
+  minD=new Date(minD.getFullYear(),minD.getMonth(),1);
+  maxD=new Date(maxD.getFullYear(),maxD.getMonth()+2,0);
+  const span=maxD-minD;
+
+  rows.sort((a,b)=>new Date(a.brd||a.dates[0])-new Date(b.brd||b.dates[0]));
+
+  const months=[];
+  let cur=new Date(minD);
+  while(cur<=maxD){months.push(new Date(cur));cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);}
+
+  const LW=164,RH=28,HDR=26;
+  const totalH=HDR+rows.length*RH+10;
+
+  const grid=months.map(m=>{
+    const x=((m-minD)/span*100).toFixed(2);
+    const lbl=m.toLocaleDateString("vi-VN",{month:"short"})+" '"+String(m.getFullYear()).slice(2);
+    return `<div style="position:absolute;left:${x}%;top:0;bottom:0;border-left:1px solid var(--border)"><span style="position:absolute;top:4px;left:4px;font-size:0.59rem;color:var(--muted);white-space:nowrap">${lbl}</span></div>`;
+  }).join("");
+
+  const todayX=((new Date()-minD)/span*100);
+  const todayLine=(todayX>=0&&todayX<=100)?
+    `<div style="position:absolute;left:${todayX.toFixed(1)}%;top:0;bottom:0;width:2px;background:var(--accent);opacity:.55;z-index:4"><span style="position:absolute;bottom:3px;left:4px;font-size:0.59rem;color:var(--accent);font-weight:700;white-space:nowrap">Today</span></div>`:"";
+
+  const bars=rows.map((r,i)=>{
+    const color=TEAM_COLORS[r.t.team]||"#86868b";
+    const top=HDR+i*RH;
+    const sortedD=r.dates.map(d=>new Date(d)).sort((a,b)=>a-b);
+    const barL=((sortedD[0]-minD)/span*100).toFixed(2);
+    const barW=(sortedD.length>1?((sortedD[sortedD.length-1]-sortedD[0])/span*100):0).toFixed(2);
+    const rowBg=i%2===0?"":"rgba(0,0,0,.018)";
+    const dots=[{d:r.brd,lbl:"BRD"},{d:r.mock,lbl:"Mock"},{d:r.build,lbl:"Build"},{d:r.golive,lbl:"GoLive"}]
+      .filter(m=>m.d).map(m=>{
+        const x=((new Date(m.d)-minD)/span*100).toFixed(2);
+        const fmt=m.d.split("-").reverse().join("/");
+        const isGo=m.lbl==="GoLive";
+        return `<div style="position:absolute;left:${x}%;top:50%;margin-top:-6px;margin-left:-6px;width:12px;height:12px;border-radius:${isGo?"3px":"50%"};background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);z-index:3;transform:${isGo?"rotate(45deg)":""}" title="${m.lbl}: ${fmt}"></div>`;
+      }).join("");
+    return `<div onclick="openModal('${r.t.id}')" class="gantt-task-row" style="position:absolute;left:0;right:0;top:${top}px;height:${RH}px;display:flex;align-items:center;cursor:pointer;background:${rowBg}">
+      <div style="flex:0 0 ${LW}px;padding-right:10px;text-align:right;font-size:0.68rem;font-weight:700;color:${color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${r.t.name}">${r.t.id}</div>
+      <div style="flex:1;position:relative;height:100%">
+        ${parseFloat(barW)>0?`<div style="position:absolute;left:${barL}%;width:${barW}%;top:50%;margin-top:-3px;height:6px;border-radius:3px;background:${color};opacity:.28"></div>`:""}
+        ${dots}
+      </div>
+    </div>`;
+  }).join("");
+
+  const legend=[...new Set(rows.map(r=>r.t.team))].map(t=>
+    `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:12px;font-size:0.69rem;color:var(--muted)"><span style="width:9px;height:9px;border-radius:50%;background:${TEAM_COLORS[t]||'#86868b'};flex-shrink:0"></span>${t}</span>`).join("");
+
+  gantt.innerHTML=`
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px">
+      <span style="font-weight:700;font-size:0.92rem">📅 Gantt Chart — Project Timeline <span style="color:var(--muted);font-size:0.72rem;font-weight:400;margin-left:8px">${rows.length}/${TASKS.length} usecase đã có ngày</span></span>
+      <span style="font-size:0.68rem;color:var(--muted)">● BRD &nbsp; ● Mock &nbsp; ● Build &nbsp; ◆ GoLive</span>
+    </div>
+    <div style="overflow-x:auto;padding-bottom:8px">
+      <div style="position:relative;height:${totalH}px;min-width:520px">
+        <div style="position:absolute;left:${LW}px;right:0;top:0;bottom:0">${grid}${todayLine}</div>
+        ${bars}
+      </div>
+    </div>
+    <div style="padding:9px 18px;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center">${legend}</div>
+  </div>`;
+}
+
+// ── Main render ────────────────────────────────────────────────
+function render(){
+  const filtered=filterTasks();
+  document.getElementById("fCount").textContent=
+    filtered.length<TASKS.length?`${filtered.length}/${TASKS.length} usecases`:`${TASKS.length} usecases`;
+
+  document.getElementById("teamWrap").innerHTML=TEAMS.map(team=>{
+    const items=filtered.filter(t=>t.team===team);
+    if(!items.length)return"";
+    const done=items.filter(t=>t.status.includes("Hoàn thành")||t.status.includes("Đã deploy")).length;
+    const pct=Math.round(done/items.length*100);
+    const open=curExpanded.has(team);
+
+    const tableRows=items.map((t,idx)=>{
+      const inputTypes=getInputTypes(t.id,t);
+      const savedPic=lsGet("sss_pic_"+t.id)||(t.owner||"");
+      const savedStat=lsGet("sss_stat_"+t.id)||"Pending";
+      const savedPri=lsGet("sss_pri_"+t.id)||(t.priority||"TB");
+      const brd=lsGet("sss_brd_"+t.id),mock=lsGet("sss_mock_"+t.id),
+            build=lsGet("sss_build_"+t.id),golive=lsGet("sss_golive_"+t.id);
+      const ep=savedPic.replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+      const bizLabel=(t.group&&t.group!==team?t.group:team).replace(/ — .*/,"");
+      const statOpts=["Pending","BRD","Mock/Design","Build","GoLive"].map(s=>`<option value="${s}"${s===savedStat?" selected":""}>${s}</option>`).join("");
+      const priOpts=["Cao","TB","Thấp"].map(p=>`<option value="${p}"${p===savedPri?" selected":""}>${p}</option>`).join("");
+      const chkBoxes=INPUT_TYPES.map(type=>`
+        <label class="inp-opt" onclick="event.stopPropagation()">
+          <input type="checkbox" value="${type}"${inputTypes.includes(type)?" checked":""}
+            onchange="toggleInputType('${t.id}','${type}',this.checked,this)">
+          <span class="input-badge ${inputClass(type)}">${type}</span>
+        </label>`).join("");
+      return `<tr class="uc-row" onclick="openModal('${t.id}')">
+        <td class="uc-td stt">${idx+1}</td>
+        <td class="uc-td biz"><span class="biz-badge" title="${t.group||team}">${bizLabel}</span></td>
+        <td class="uc-td name"><span class="uc-id">${t.id}</span>${t.name}</td>
+        <td class="uc-td pri" onclick="event.stopPropagation()">
+          <select class="pri-sel ${priSelClass(savedPri)}" onchange="updatePri('${t.id}',this.value,this)">${priOpts}</select>
+        </td>
+        <td class="uc-td pic" onclick="event.stopPropagation()">
+          <input class="pic-input" value="${ep}" placeholder="PIC..." onchange="updatePic('${t.id}',this.value)">
+        </td>
+        <td class="uc-td stat" onclick="event.stopPropagation()">
+          <select class="stat-sel ${statSelClass(savedStat)}" onchange="updateStat('${t.id}',this.value,this)">${statOpts}</select>
+        </td>
+        <td class="uc-td inp" onclick="event.stopPropagation()">
+          <details class="inp-details">
+            <summary class="inp-sum">${renderInputBadges(inputTypes)||'<span style="color:var(--muted);font-size:0.72rem">Chọn...</span>'}</summary>
+            <div class="inp-panel">${chkBoxes}</div>
+          </details>
+        </td>
+        <td class="uc-td dtcell" onclick="event.stopPropagation()">
+          <label class="dt-lbl">BRD</label>
+          <input type="date" class="dt-inp${brd?' has-date':''}" value="${brd}" data-id="${t.id}" data-field="brd" onchange="updateDate('${t.id}','brd',this.value)">
+        </td>
+        <td class="uc-td dtcell" onclick="event.stopPropagation()">
+          <label class="dt-lbl">Mock</label>
+          <input type="date" class="dt-inp${mock?' has-date':''}" value="${mock}" data-id="${t.id}" data-field="mock" onchange="updateDate('${t.id}','mock',this.value)">
+        </td>
+        <td class="uc-td dtcell" onclick="event.stopPropagation()">
+          <label class="dt-lbl">Build</label>
+          <input type="date" class="dt-inp${build?' has-date':''}" value="${build}" data-id="${t.id}" data-field="build" onchange="updateDate('${t.id}','build',this.value)">
+        </td>
+        <td class="uc-td dtcell" onclick="event.stopPropagation()">
+          <label class="dt-lbl">GoLive</label>
+          <input type="date" class="dt-inp${golive?' has-date':''}" value="${golive}" data-id="${t.id}" data-field="golive" onchange="updateDate('${t.id}','golive',this.value)">
+        </td>
+      </tr>`;
+    }).join("");
+
+    const thead=`<tr>
+      <th class="uc-th" style="width:36px">#</th>
+      <th class="uc-th" style="width:78px">Biz</th>
+      <th class="uc-th">Usecase</th>
+      <th class="uc-th" style="width:78px">Priority</th>
+      <th class="uc-th" style="width:136px">PIC</th>
+      <th class="uc-th" style="width:120px">Status</th>
+      <th class="uc-th" style="width:170px">Input cần</th>
+      <th class="uc-th" style="width:102px">BRD</th>
+      <th class="uc-th" style="width:102px">Mock</th>
+      <th class="uc-th" style="width:102px">Build</th>
+      <th class="uc-th" style="width:102px">GoLive</th>
+    </tr>`;
+
+    return `<div class="team-block">
+      <div class="team-head" onclick="toggleTeam('${team}')">
+        <span class="exp-icon ${open?'open':''}">▶</span>
+        <span class="tbadge">${team.toUpperCase()}</span>
+        <span class="tname">${team} — ${items.length} usecase${items.length>1?'s':''}</span>
+        <span class="tmeta">
+          <span class="tcount">${done}/${items.length} hoàn thành</span>
+          <span class="tprog"><span style="width:${pct}%"></span></span>
+        </span>
+      </div>
+      <div class="sub-group ${open?'show':''}">
+        <div style="overflow-x:auto">
+          <table class="uc-table"><thead>${thead}</thead><tbody>${tableRows}</tbody></table>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  renderGantt();
+}
+
+// ── Modal ──────────────────────────────────────────────────────
+function openModal(id){
+  const t=TASKS.find(x=>x.id===id);
+  if(!t)return;
+  const li=arr=>(arr||[]).map(x=>`<li>${x}</li>`).join("");
+  const eng=(t.engineDetail||[]).map(e=>`<li><b>${e.n}</b><span>${e.d}</span></li>`).join("");
+  const steps=(t.roadmap||[]).map((s,i)=>`<div class="roadmap-step"><div class="roadmap-num">${i+1}</div><div class="rtxt"><b>${s.t}</b><span>${s.d}</span></div></div>`).join("");
+  const inputTypes=getInputTypes(id,t);
+  const inputBadges=renderInputBadges(inputTypes)||'<span style="color:var(--muted);font-size:0.78rem">Chưa xác định</span>';
+  const savedNote=lsGet("sss_notes_"+id);
+  const brd=lsGet("sss_brd_"+id),mock=lsGet("sss_mock_"+id),
+        build=lsGet("sss_build_"+id),golive=lsGet("sss_golive_"+id);
+  const savedPri=lsGet("sss_pri_"+id)||(t.priority||"TB");
+  const savedStat=lsGet("sss_stat_"+id)||"Pending";
+  const savedPic=lsGet("sss_pic_"+id)||(t.owner||"—");
+
+  document.getElementById("modal").innerHTML=`
+    <button class="mclose" onclick="closeModal()">✕ Đóng</button>
+    <h2>${t.id} — ${t.name}</h2>
+    <div class="sub">${t.team} · ${t.group}</div>
+    <div class="mgrid">
+      <div class="mmeta"><b>PRIORITY</b><span class="badge ${priClass(savedPri)}">${savedPri}</span></div>
+      <div class="mmeta"><b>STATUS</b><span style="font-weight:600;font-size:0.82rem">${savedStat}</span></div>
+      <div class="mmeta"><b>PIC</b>${savedPic}</div>
+      <div class="mmeta"><b>ĐỘ PHỨC TẠP</b>${t.complexity||'—'}</div>
+    </div>
+    <div class="msec"><h4>📋 Input cần</h4><div style="margin-top:4px">${inputBadges}</div></div>
+    <div class="msec">
+      <h4>📅 Timeline</h4>
+      <div class="date-row">
+        <div class="date-cell"><b>BRD</b><input type="date" value="${brd}" onchange="updateDate('${id}','brd',this.value)"></div>
+        <div class="date-cell"><b>Mock / Design</b><input type="date" value="${mock}" onchange="updateDate('${id}','mock',this.value)"></div>
+        <div class="date-cell"><b>Build</b><input type="date" value="${build}" onchange="updateDate('${id}','build',this.value)"></div>
+        <div class="date-cell"><b>GoLive</b><input type="date" value="${golive}" onchange="updateDate('${id}','golive',this.value)"></div>
+      </div>
+    </div>
+    <div class="msec"><h4>🎯 Mục tiêu</h4><p>${t.mucTieu}</p></div>
+    <div class="msec"><h4>⚙️ Engine cần xây — chi tiết</h4><ul class="eng">${eng}</ul></div>
+    <div class="msec"><h4>📥 Input</h4><ul>${li(t.input)}</ul></div>
+    <div class="msec"><h4>📤 Output</h4><ul>${li(t.output)}</ul></div>
+    <div class="msec"><h4>💡 Giá trị mang lại cho Business</h4><p>${t.value||'—'}</p></div>
+    <div class="msec"><h4>🛣️ Lộ trình phát triển — từng bước</h4>${steps}</div>
+    <div class="msec">
+      <h4>📝 Ghi chú / Điểm cần lưu ý</h4>
+      <textarea class="notes-area" placeholder="Nhập ghi chú, điểm cần follow-up..." onchange="lsSet('sss_notes_${id}',this.value)">${savedNote}</textarea>
+    </div>`;
+  document.getElementById("overlay").classList.add("show");
+}
+function closeModal(){document.getElementById("overlay").classList.remove("show");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+
+initFilters();
+expandAll(true);
+
+</script>
+</body>
+</html>
