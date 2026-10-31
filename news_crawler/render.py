@@ -33,7 +33,8 @@ def assign_region(a):
 def build_items(arts, now_ts):
     seen, uniq = set(), []
     for a in arts:
-        if a["url"] in seen or not a["title"]:
+        # bỏ tiêu đề rác quá ngắn ("Vietnam Economy", "Văn nghệ - Thể thao"...)
+        if a["url"] in seen or len(a["title"].split()) < 4:
             continue
         seen.add(a["url"])
         uniq.append(a)

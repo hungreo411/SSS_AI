@@ -84,7 +84,10 @@ for _rid, _names in TITANS.items():
         r"(?<![\w])(?:" + "|".join(re.escape(n) for n in sorted(_names, key=len, reverse=True)) + r")(?![\w])")
 
 VN_RX = re.compile(r"việt nam|vietnam|vietnamese|\bvn\b|tp\.?\s?hcm|hà nội|hanoi|ho chi minh|đà nẵng|"
-                   r"hải phòng|trong nước|chính phủ việt|bộ chính trị|quốc hội việt", re.IGNORECASE)
+                   r"hải phòng|cần thơ|trong nước|chính phủ việt|bộ chính trị|quốc hội việt|tô lâm|lê minh hưng|"
+                   r"thủ tướng chính phủ|tổng bí thư|chủ tịch nước|vn-index|nhnn|ngân hàng nhà nước|"
+                   r"đồng bằng sông cửu long|đbscl|tây nguyên|miền trung|bình dương|đồng nai|bà rịa|vũng tàu|"
+                   r"quảng ninh|thủ tướng dự|thủ tướng tiếp|phó thủ tướng|bộ công thương|bộ tài chính", re.IGNORECASE)
 
 REGION_BY_ID = {r["id"]: r for r in REGIONS}
 REGION_IDS = [r["id"] for r in REGIONS]

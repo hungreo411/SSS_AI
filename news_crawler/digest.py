@@ -95,7 +95,7 @@ def cluster(articles, threshold=0.42):
     """Gán cụm cho tin cùng sự kiện ở nhiều báo; trả về dict id -> list[art].
 
     Hai bài là một nếu: (1) tiêu đề trùng >= 42% cặp từ liền nhau, hoặc (2) tiêu đề trùng >= 55% từ đơn
-    (ít nhất 4 từ chung), hoặc (3) câu mở đầu trùng >= 60% từ (câu dài >= 60 ký tự).
+    (ít nhất 4 từ chung; hoặc >= 45% với 5 từ chung), hoặc (3) câu mở đầu trùng >= 60% từ (câu dài >= 60 ký tự).
     """
     parent = list(range(len(articles)))
 
@@ -127,7 +127,7 @@ def cluster(articles, threshold=0.42):
     sh = [_shingles(a["title"]) for a in articles]
     link(sh, lambda s, t, c: c >= 2 and c / len(s | t) >= threshold)
     uni = [_uni(a["title"]) for a in articles]
-    link(uni, lambda s, t, c: c >= 4 and c / len(s | t) >= 0.55)
+    link(uni, lambda s, t, c: (c >= 4 and c / len(s | t) >= 0.55) or (c >= 5 and c / len(s | t) >= 0.45))
     leads = [_uni(a["bullets"][0]) if len(a.get("bullets", [""])[0]) >= 60 else set() for a in articles]
     link(leads, lambda s, t, c: c >= 8 and c / len(s | t) >= 0.6)
     groups = defaultdict(list)
