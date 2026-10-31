@@ -22,6 +22,7 @@ class Fetcher:
         self.timeout = timeout
         self.listing_ttl = listing_ttl
         self.verbose = verbose
+        self.offline = False  # True: chỉ dùng cache, không gọi mạng
         self._local = threading.local()
         self._host_sem = {}
         self._host_last = {}
@@ -50,11 +51,13 @@ class Fetcher:
         path = self._cache_path(url)
         if os.path.exists(path):
             age = time.time() - os.path.getmtime(path)
-            if ttl is None or age < ttl:
+            if ttl is None or age < ttl or self.offline:
                 with self._lock:
                     self.stats["cache"] += 1
                 with open(path, encoding="utf-8", errors="replace") as f:
                     return f.read()
+        if self.offline:
+            return None
         host = urlparse(url).netloc
         with self._lock:
             sem = self._host_sem.setdefault(host, threading.Semaphore(self.per_host))

@@ -212,7 +212,14 @@ TOPICS = [
       weak=[]),
 ]
 OTHER = dict(id="khac", label="Thời sự khác", spec=0, weight=0.6)
-TOPIC_BY_ID = {t["id"]: t for t in TOPICS + [OTHER]}
+from .regions import REGIONS  # noqa: E402
+TOPIC_BY_ID = {t["id"]: t for t in TOPICS + REGIONS + [OTHER]}
+# Thứ tự hiển thị: Việt Nam trước, rồi thế giới theo quốc gia. kinh_te_tq / chinh_tri_my được gộp vào Trung Quốc / Mỹ.
+_VN_ORDER = ["bct_vn", "chinh_sach_vn", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "ty_gia_vang", "von_ngoai",
+             "quy_dau_tu", "fdi", "dau_tu_cong", "ha_tang_hcm", "cai_mep", "bds", "thuong_mai", "phap_luat", "kinh_te"]
+_WORLD_ORDER = ["bau_cu_my", "r_my", "chinh_tri_tq", "r_tq", "r_hk", "r_eu", "r_sg", "r_gulf", "r_asia",
+                "dia_chinh_tri", "cong_nghe", "kinh_te_tq", "chinh_tri_my"]
+DISPLAY = [("Việt Nam", _VN_ORDER), ("Thế giới theo quốc gia", _WORLD_ORDER)]
 
 
 def _kw_regex(words, flags=re.IGNORECASE):

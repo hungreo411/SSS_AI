@@ -5,7 +5,29 @@ from datetime import datetime
 
 from .digest import bullets, cluster
 from .extract import VN_TZ
-from .topics import OTHER, TOPIC_BY_ID, TOPICS, classify, importance
+from .regions import REGION_BY_ID, detect_region, is_vietnam
+from .topics import DISPLAY, OTHER, TOPIC_BY_ID, classify, importance
+
+# Topic gắn chặt với Việt Nam: giữ nguyên nếu bài có nhắc Việt Nam
+_KEEP_TOPICS = {"bau_cu_my", "chinh_tri_tq"}
+_ABSORB = {"kinh_te_tq": "r_tq", "chinh_tri_my": "r_my"}
+
+
+def assign_region(a):
+    """Tin nước ngoài -> topic quốc gia (topic gốc thành nhãn phụ). Tin có Việt Nam giữ topic Việt Nam."""
+    region, titans = detect_region(a["title"], a["desc"] or " ".join(a["paras"][:2]))
+    a["titans"] = titans
+    a["sub"] = None
+    if a["topic"] in _KEEP_TOPICS:
+        return
+    if is_vietnam(a["title"], a["desc"]) and a["topic"] not in _ABSORB:
+        return
+    if a["topic"] in _ABSORB and not region:
+        region = _ABSORB[a["topic"]]
+    if region:
+        if a["topic"] != OTHER["id"]:
+            a["sub"] = TOPIC_BY_ID[a["topic"]]["label"]
+        a["topic"] = region
 
 
 def build_items(arts, now_ts):
@@ -20,14 +42,18 @@ def build_items(arts, now_ts):
         a["topic"], a["topics2"], _ = classify(a["title"], text)
         a["bullets"] = bullets(a["title"], a["desc"], a["paras"], a["topic"])
         a["summary"] = " ".join(a["bullets"])
+        assign_region(a)
     items = []
     for group in cluster(uniq).values():
         group.sort(key=lambda a: (a["via"] == "gnews", not a["paras"], a["tier"], -(len(a["bullets"][1]))))
         rep = dict(group[0])
         topics = Counter(a["topic"] for a in group if a["topic"] != OTHER["id"])
         if rep["topic"] == OTHER["id"] and topics:
-            rep["topic"] = topics.most_common(1)[0][0]
+            donor_t = topics.most_common(1)[0][0]
+            donor = next(a for a in group if a["topic"] == donor_t)
+            rep["topic"], rep["sub"] = donor_t, donor.get("sub")
             rep["bullets"] = bullets(rep["title"], rep["desc"], rep["paras"], rep["topic"])
+        rep["titans"] = sorted({n for a in group for n in a.get("titans", [])})
         # tin chỉ có tiêu đề (Google News / báo trả phí): mượn sapo của bài cùng sự kiện nếu có
         if not rep["bullets"][0]:
             donor = next((a for a in group[1:] if a["bullets"][0]), None)
@@ -40,9 +66,19 @@ def build_items(arts, now_ts):
         rep["n_sources"] = len(srcs)
         rep["ts"] = max((a["ts"] for a in group if a["ts"]), default=None)
         rep["level"], rep["level_label"], rep["score"] = importance(rep, rep["n_sources"], now_ts)
+        if rep["titans"] and rep["level"] < 5:
+            rep["score"] += 0.5
+            rep["level"], rep["level_label"] = _level(rep["score"])
         items.append(rep)
     items.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
     return items
+
+
+def _level(score):
+    from .topics import LEVELS
+    for th, lv, label in LEVELS:
+        if score >= th:
+            return lv, label
 
 
 # ------------------------------------------------------------------ HTML
@@ -75,6 +111,10 @@ ul{margin:0;padding-left:18px}li{margin:0 0 3px}
 .lv5{background:var(--l5)}.lv4{background:var(--l4)}.lv3{background:var(--l3);color:#1a1a1a}.lv2{background:var(--l2)}
 .lv1{background:var(--l1)}.dots{display:block;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px}
 details{margin-top:26px}summary{cursor:pointer;font-weight:600}
+.ng{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}.ng>span{font-size:11px;text-transform:uppercase;
+letter-spacing:.05em;color:var(--muted);margin-right:4px}nav{flex-direction:column;gap:8px}
+h2.grp{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-top:36px;border-top:2px solid var(--line);padding-top:14px}
+.ti{font-size:11px;color:var(--link);margin-top:2px}
 .rep td{font-size:12.5px}.fail{color:var(--accent)}.tag{font-size:11px;color:var(--muted)}
 @media (max-width:720px){table{min-width:0}thead{display:none}tbody tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px;border-bottom:1px solid var(--line)}
 tbody td{border:0;padding:0;width:auto!important}td.t{order:1}td.l{order:2;text-align:right}td.h{order:3;grid-column:1/-1}td.c{order:4;grid-column:1/-1}.tw{overflow-x:visible}}
@@ -99,7 +139,9 @@ def _time(ts):
 
 def _row(it, show_topic=True):
     t = TOPIC_BY_ID[it["topic"]]
-    tags = ", ".join(TOPIC_BY_ID[x]["label"] for x in it["topics2"][:2])
+    tags = it.get("sub") or ", ".join(TOPIC_BY_ID[x]["label"] for x in it["topics2"][:2]
+                                      if x != it["topic"] and x in TOPIC_BY_ID)
+    titan = ", ".join(it.get("titans", [])[:4])
     others = ""
     if it["others"]:
         links = ", ".join(f'<a href="{_e(u)}" target="_blank" rel="noopener">{_e(s)}</a>' for s, u in it["others"][:6])
@@ -109,8 +151,8 @@ def _row(it, show_topic=True):
     content = "<ul>" + "".join(f"<li>{_e(b)}</li>" for b in bl) + "</ul>" if bl else \
         '<span class="tag">(Nguồn chỉ cung cấp tiêu đề — mở link để đọc)</span>'
     dots = "●" * it["level"] + "○" * (5 - it["level"])
-    topic_cell = f'<td class="t">{_e(t["label"])}' + (f'<div class="tag">+ {_e(tags)}</div>' if tags else "") + "</td>" \
-        if show_topic else f'<td class="t">{_e(t["label"])}</td>'
+    topic_cell = (f'<td class="t">{_e(t["label"])}' + (f'<div class="tag">· {_e(tags)}</div>' if tags else "")
+                  + (f'<div class="ti">{_e(titan)}</div>' if titan else "") + "</td>")
     return (f'<tr data-l="{it["level"]}">{topic_cell}'
             f'<td class="h"><a href="{_e(it["url"])}" target="_blank" rel="noopener">{_e(it["title"])}</a>'
             f'<div class="src">{_e(it["source"])} · {_time(it["ts"])}{others}</div></td>'
@@ -125,33 +167,41 @@ def _table(rows):
 
 
 def render(items, reports, opts, now_ts, top_n=30):
-    by_topic = {t["id"]: [] for t in TOPICS + [OTHER]}
+    top = [it for it in items if it["topic"] != OTHER["id"]][:top_n]
+    top_ids = {id(it) for it in top}
+    by_topic = {k: [] for k in TOPIC_BY_ID}
     for it in items:
-        by_topic[it["topic"]].append(it)
+        if id(it) not in top_ids:  # tin ở Tiêu điểm không lặp lại bên dưới
+            by_topic[it["topic"]].append(it)
     n_src_ok = sum(1 for r in reports if r["status"] == "ok")
     n_arts = sum(r["articles"] for r in reports)
     gen = datetime.fromtimestamp(now_ts, VN_TZ).strftime("%H:%M ngày %d/%m/%Y")
-    nav = "".join(f'<a href="#{t["id"]}">{_e(t["label"])}<b>{len(by_topic[t["id"]])}</b></a>'
-                  for t in TOPICS if by_topic[t["id"]])
-    nav += f'<a href="#khac">{OTHER["label"]}<b>{len(by_topic["khac"])}</b></a>' if by_topic["khac"] else ""
-
-    top = [it for it in items if it["topic"] != OTHER["id"]][:top_n]
+    nav = ""
+    for group, order in DISPLAY:
+        chips = "".join(f'<a href="#{k}">{_e(TOPIC_BY_ID[k]["label"])}<b>{len(by_topic[k])}</b></a>'
+                        for k in order if by_topic[k])
+        nav += f'<div class="ng"><span>{group}</span>{chips}</div>'
+    if by_topic["khac"]:
+        nav += f'<div class="ng"><span>Khác</span><a href="#khac">{OTHER["label"]}<b>{len(by_topic["khac"])}</b></a></div>'
     parts = [f"""<!doctype html><html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>Bản tin tổng hợp {gen[-10:]}</title>
 <style>{CSS}</style></head><body><div class="wrap">
 <h1>Bản tin tổng hợp</h1>
 <div class="meta">Cập nhật {gen} · khung {opts.hours} giờ gần nhất · {n_src_ok}/{len(reports)} nguồn đọc được ·
-{n_arts} bài đã đọc → {len(items)} sự kiện (đã gộp tin trùng giữa các báo)</div>
+{n_arts} bài đã đọc → {len(items)} sự kiện, mỗi sự kiện hiện một lần (đã gộp tin trùng giữa các báo)</div>
 <nav>{nav}</nav>
-<div class="bar"><input id="q" placeholder="Lọc theo từ khoá, mã CK, tên báo…">
+<div class="bar"><input id="q" placeholder="Lọc theo từ khoá, mã CK, tên báo, JPMorgan…">
 <select id="lv"><option value="1">Mọi mức độ</option><option value="3">Từ 3 · Trung bình</option>
 <option value="4">Từ 4 · Cao</option><option value="5">Chỉ 5 · Rất cao</option></select></div>
-<h2 id="top">Tiêu điểm <small>{len(top)} tin quan trọng nhất</small></h2>{_table([_row(i) for i in top])}"""]
-    for t in TOPICS:
-        rows = by_topic[t["id"]]
-        if rows:
-            parts.append(f'<h2 id="{t["id"]}">{_e(t["label"])} <small>{len(rows)} tin</small></h2>'
-                         + _table([_row(i) for i in rows]))
+<h2 id="top">Tiêu điểm <small>{len(top)} tin quan trọng nhất (không lặp lại ở các mục dưới)</small></h2>{_table([_row(i) for i in top])}"""]
+    for group, order in DISPLAY:
+        if any(by_topic[k] for k in order):
+            parts.append(f'<h2 class="grp">{group}</h2>')
+        for k in order:
+            rows = by_topic[k]
+            if rows:
+                parts.append(f'<h2 id="{k}">{_e(TOPIC_BY_ID[k]["label"])} <small>{len(rows)} tin</small></h2>'
+                             + _table([_row(i) for i in rows]))
     if by_topic["khac"]:
         parts.append(f'<details id="khac"><summary>{OTHER["label"]} ({len(by_topic["khac"])} tin chưa khớp topic)</summary>'
                      + _table([_row(i) for i in by_topic["khac"]]) + "</details>")

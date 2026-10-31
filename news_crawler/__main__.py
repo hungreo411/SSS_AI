@@ -24,6 +24,7 @@ def main(argv=None):
     ap.add_argument("--min-level", type=int, default=1, help="chỉ xuất tin có mức độ >= N (1-5)")
     ap.add_argument("--out", help="file HTML đầu ra (mặc định reports/ban-tin-YYYYMMDD-HHMM.html)")
     ap.add_argument("--cache", default=".cache", help="thư mục cache")
+    ap.add_argument("--cache-only", action="store_true", help="dựng lại bản tin từ cache, không tải mới")
     ap.add_argument("--list", action="store_true", help="liệt kê nguồn rồi thoát")
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args(argv)
@@ -45,6 +46,7 @@ def main(argv=None):
 
     t0 = time.time()
     fetcher = Fetcher(cache_dir=a.cache, verbose=a.verbose)
+    fetcher.offline = a.cache_only
     print(f"Quét {len(only) if only else len(SOURCES)} nguồn, khung {o.hours}h …", flush=True)
     arts, reps = crawl_all(fetcher, o, only)
     now = time.time()

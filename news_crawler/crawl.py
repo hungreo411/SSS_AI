@@ -181,7 +181,9 @@ def crawl_source(src, fetcher, opts, cutoff):
             for a in ex.map(grab, pool):
                 if a and len(a["title"]) >= 15:
                     out.append(a)
-    out = [a for a in out if (a["ts"] and a["ts"] >= cutoff) or (not a["ts"] and opts.keep_undated)]
+    # bài không có ngày từ trang chủ/chuyên mục thường là trang tĩnh (giới thiệu, hồ sơ...) -> bỏ
+    out = [a for a in out if (a["ts"] and a["ts"] >= cutoff)
+           or (not a["ts"] and opts.keep_undated and a["via"] in ("rss", "gnews"))]
     rep["articles"] = len(out)
     log(opts, f"  [{src['id']}] {rep['sections']} chuyên mục, {rep['pages']} trang, "
               f"{rep['candidates']} link, {rep['articles']} bài trong khung giờ")

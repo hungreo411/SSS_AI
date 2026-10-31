@@ -87,8 +87,16 @@ def _shingles(title):
     return {" ".join(w[i:i + 2]) for i in range(len(w) - 1)} or set(w)
 
 
+def _uni(text):
+    return {w for w in re.findall(r"\w{2,}", text.lower()) if not w.isdigit() or len(w) > 2}
+
+
 def cluster(articles, threshold=0.42):
-    """Gán art['cluster'] = id; trả về dict id -> list[art]. Tin cùng sự kiện ở nhiều báo gom lại."""
+    """Gán cụm cho tin cùng sự kiện ở nhiều báo; trả về dict id -> list[art].
+
+    Hai bài là một nếu: (1) tiêu đề trùng >= 42% cặp từ liền nhau, hoặc (2) tiêu đề trùng >= 55% từ đơn
+    (ít nhất 4 từ chung), hoặc (3) câu mở đầu trùng >= 60% từ (câu dài >= 60 ký tự).
+    """
     parent = list(range(len(articles)))
 
     def find(i):
@@ -97,19 +105,31 @@ def cluster(articles, threshold=0.42):
             i = parent[i]
         return i
 
+    def union(i, j):
+        parent[find(i)] = find(j)
+
+    def link(keys, test):
+        index = defaultdict(list)
+        for i, s in enumerate(keys):
+            if not s:
+                continue
+            cand = defaultdict(int)
+            for g in s:
+                for j in index[g]:
+                    cand[j] += 1
+            for j, c in cand.items():
+                if find(i) != find(j) and test(s, keys[j], c):
+                    union(i, j)
+            for g in s:
+                if len(index[g]) < 300:
+                    index[g].append(i)
+
     sh = [_shingles(a["title"]) for a in articles]
-    index = defaultdict(list)
-    for i, s in enumerate(sh):
-        cand = defaultdict(int)
-        for g in s:
-            for j in index[g]:
-                cand[j] += 1
-        for j, c in cand.items():
-            if c >= 2 and c / len(s | sh[j]) >= threshold:
-                parent[find(i)] = find(j)
-        for g in s:
-            if len(index[g]) < 200:
-                index[g].append(i)
+    link(sh, lambda s, t, c: c >= 2 and c / len(s | t) >= threshold)
+    uni = [_uni(a["title"]) for a in articles]
+    link(uni, lambda s, t, c: c >= 4 and c / len(s | t) >= 0.55)
+    leads = [_uni(a["bullets"][0]) if len(a.get("bullets", [""])[0]) >= 60 else set() for a in articles]
+    link(leads, lambda s, t, c: c >= 8 and c / len(s | t) >= 0.6)
     groups = defaultdict(list)
     for i, a in enumerate(articles):
         groups[find(i)].append(a)
