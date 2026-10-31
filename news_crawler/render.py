@@ -116,17 +116,46 @@ details{margin-top:26px}summary{cursor:pointer;font-weight:600}
 letter-spacing:.05em;color:var(--muted);margin-right:4px}nav{flex-direction:column;gap:8px}
 h2.grp{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-top:36px;border-top:2px solid var(--line);padding-top:14px}
 .ti{font-size:11px;color:var(--link);margin-top:2px}
+.bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line)}
+.lvb{display:flex;gap:4px}.lvb button{font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;
+background:var(--card);color:var(--text);cursor:pointer}.lvb button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.cnt{font-size:12.5px;color:var(--muted);align-self:center}[hidden]{display:none!important}
 .rep td{font-size:12.5px}.fail{color:var(--accent)}.tag{font-size:11px;color:var(--muted)}
 @media (max-width:720px){table{min-width:0}thead{display:none}tbody tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px;border-bottom:1px solid var(--line)}
 tbody td{border:0;padding:0;width:auto!important}td.t{order:1}td.l{order:2;text-align:right}td.h{order:3;grid-column:1/-1}td.c{order:4;grid-column:1/-1}.tw{overflow-x:visible}}
 """
 
-JS = """
-const q=document.getElementById('q'),lv=document.getElementById('lv');
-function f(){const s=q.value.toLowerCase().trim(),m=+lv.value;
-document.querySelectorAll('tr[data-l]').forEach(r=>{const ok=(+r.dataset.l>=m)&&(!s||r.textContent.toLowerCase().includes(s));
-r.style.display=ok?'':'none'})}
-q.addEventListener('input',f);lv.addEventListener('change',f);
+JS = r"""
+(function(){
+var q=document.getElementById('q'),info=document.getElementById('cnt'),btns=[].slice.call(document.querySelectorAll('.lvb button'));
+var rows=[].slice.call(document.querySelectorAll('tr[data-l]'));
+var txt=rows.map(function(r){return r.textContent.toLowerCase()}),lvl=rows.map(function(r){return +r.getAttribute('data-l')});
+var secs=[].slice.call(document.querySelectorAll('h2[id]')).map(function(h){var b=h.nextElementSibling;
+  return {h:h,box:b,sm:h.querySelector('small'),rows:b?[].slice.call(b.querySelectorAll('tr[data-l]')):[],
+          chip:document.querySelector('nav a[href="#'+h.id+'"]')}}).filter(function(s){return s.box});
+var kh=document.getElementById('khac'),khRows=kh?[].slice.call(kh.querySelectorAll('tr[data-l]')):[],
+    khSum=kh?kh.querySelector('summary'):null,khChip=document.querySelector('nav a[href="#khac"]');
+var grps=[].slice.call(document.querySelectorAll('h2.grp'));
+var m=1,timer=null;
+function vis(list){var n=0;for(var i=0;i<list.length;i++)if(!list[i].hidden)n++;return n}
+function setChip(a,n){if(!a)return;var b=a.querySelector('b');if(b)b.textContent=n;a.hidden=!n}
+function run(){
+  var t=q.value.trim().toLowerCase(),shown=0;
+  for(var i=0;i<rows.length;i++){var ok=lvl[i]>=m&&(!t||txt[i].indexOf(t)>=0);rows[i].hidden=!ok;if(ok)shown++}
+  secs.forEach(function(s){var n=vis(s.rows);s.h.hidden=s.box.hidden=!n;
+    if(s.sm)s.sm.textContent=n+' tin';setChip(s.chip,n)});
+  if(kh){var n=vis(khRows);kh.hidden=!n;if(khSum)khSum.textContent='Thời sự khác ('+n+' tin chưa khớp topic)';setChip(khChip,n)}
+  grps.forEach(function(g){var el=g.nextElementSibling,any=false;
+    while(el&&!(el.tagName==='H2'&&el.classList.contains('grp'))&&el.id!=='khac'){if(el.tagName==='H2'&&!el.hidden)any=true;el=el.nextElementSibling}
+    g.hidden=!any});
+  document.querySelectorAll('nav .ng').forEach(function(g){g.hidden=!g.querySelector('a:not([hidden])')});
+  info.textContent=(m>1||t)?('Đang hiện '+shown+' / '+rows.length+' tin'):(rows.length+' tin');
+}
+btns.forEach(function(b){b.addEventListener('click',function(){m=+b.getAttribute('data-m');
+  btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});run()})});
+q.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(run,200)});
+run();
+})();
 """
 
 
@@ -191,9 +220,10 @@ def render(items, reports, opts, now_ts, top_n=30):
 <div class="meta">Cập nhật {gen} · khung {opts.hours} giờ gần nhất · {n_src_ok}/{len(reports)} nguồn đọc được ·
 {n_arts} bài đã đọc → {len(items)} sự kiện, mỗi sự kiện hiện một lần (đã gộp tin trùng giữa các báo)</div>
 <nav>{nav}</nav>
-<div class="bar"><input id="q" placeholder="Lọc theo từ khoá, mã CK, tên báo, JPMorgan…">
-<select id="lv"><option value="1">Mọi mức độ</option><option value="3">Từ 3 · Trung bình</option>
-<option value="4">Từ 4 · Cao</option><option value="5">Chỉ 5 · Rất cao</option></select></div>
+<div class="bar"><input id="q" type="search" placeholder="Lọc theo từ khoá, mã CK, tên báo, JPMorgan…" aria-label="Lọc tin">
+<div class="lvb" role="group" aria-label="Lọc theo mức độ"><button type="button" data-m="1" aria-pressed="true">Tất cả</button>
+<button type="button" data-m="3" aria-pressed="false">Từ 3</button><button type="button" data-m="4" aria-pressed="false">Từ 4</button>
+<button type="button" data-m="5" aria-pressed="false">Chỉ 5</button></div><span id="cnt" class="cnt"></span></div>
 <h2 id="top">Tiêu điểm <small>{len(top)} tin quan trọng nhất (không lặp lại ở các mục dưới)</small></h2>{_table([_row(i) for i in top])}"""]
     for group, order in DISPLAY:
         if any(by_topic[k] for k in order):
