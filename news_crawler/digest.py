@@ -7,6 +7,9 @@ from .topics import TOPIC_BY_ID, _MAGNITUDE
 _PREFIX = re.compile(r"^\s*\(?(?:[A-ZĐ][\w.]{1,15}(?:\.vn|\.com|\.net)?|TTO|VTV\.vn|Chinhphu\.vn|ĐTCK|VnEconomy|"
                      r"Dân trí|NLĐO|PLO|SGGPO|TTXVN|VOV\.VN|CafeF|Vietstock|VietNamNet)\)?\s*[-–—:]\s+")
 _SPLIT = re.compile(r"(?<=[.!?…])[\"”']?\s+")
+# Câu quảng cáo, bản quyền, kêu gọi đặt mua... lẫn trong thân bài -> bỏ
+_BOILER = re.compile(r"đặt mua|ấn phẩm|bản quyền|chúng tôi xin thông báo|đăng ký nhận|theo dõi (?:kênh|fanpage)|"
+                     r"hotline|liên hệ quảng cáo|subscribe|sign up|newsletter|all rights reserved|cookie", re.IGNORECASE)
 MAX_BULLET = 260
 
 
@@ -45,7 +48,9 @@ def _overlap(a, b):
 def bullets(title, desc, paras, topic_id):
     """-> [bullet1, bullet2] (bullet2 có thể rỗng nếu báo chỉ có tóm tắt)."""
     desc = _PREFIX.sub("", desc or "").strip()
-    body_sents = [x for p in paras for x in sentences(p)]
+    if _BOILER.search(desc):
+        desc = ""
+    body_sents = [x for p in paras for x in sentences(p) if not _BOILER.search(x)]
     if len(desc) < 40 or _overlap(desc, title) > 0.9:
         desc = body_sents[0] if body_sents else desc
     d_sents = sentences(desc)
