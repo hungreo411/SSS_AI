@@ -76,6 +76,8 @@ ul{margin:0;padding-left:18px}li{margin:0 0 3px}
 .lv1{background:var(--l1)}.dots{display:block;font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1px}
 details{margin-top:26px}summary{cursor:pointer;font-weight:600}
 .rep td{font-size:12.5px}.fail{color:var(--accent)}.tag{font-size:11px;color:var(--muted)}
+@media (max-width:720px){table{min-width:0}thead{display:none}tbody tr{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px;border-bottom:1px solid var(--line)}
+tbody td{border:0;padding:0;width:auto!important}td.t{order:1}td.l{order:2;text-align:right}td.h{order:3;grid-column:1/-1}td.c{order:4;grid-column:1/-1}.tw{overflow-x:visible}}
 """
 
 JS = """
