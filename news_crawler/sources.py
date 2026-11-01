@@ -223,10 +223,24 @@ GNEWS_TOPIC_QUERIES = {
         "hạ tầng TP.HCM", "cảng Cái Mép", "Hồ Tràm", "Châu Đức", "Bình Giã", "vành đai 4 TP.HCM",
         "nâng hạng thị trường chứng khoán", "quỹ đầu tư Việt Nam", "kinh tế vĩ mô Việt Nam",
         "bầu cử giữa kỳ Mỹ", "Trung Quốc Hội nghị Trung ương",
+        # theo Knowledge Base thị trường vốn (v3)
+        "trái phiếu chính quyền địa phương TP.HCM", "trái phiếu doanh nghiệp phát hành", "Thông tư 50/2026 NHNN",
+        "dư nợ margin chứng khoán", "Chứng khoán Kỹ thương TCBS", "Techcombank", "FTSE Russell Việt Nam",
+        "tăng trưởng tín dụng", "nợ xấu ngân hàng", "tỷ giá USD VND",
     ],
     "en": [
         "US midterm elections", "Vietnam economy", "Vietnam stocks foreign investors",
         "China Communist Party plenum", "Federal Reserve rates", "China economy stimulus",
         "Vietnam FDI", "Vietnam Politburo",
+    ],
+    # 16 "Titans" tài chính toàn cầu (Knowledge Base v3) + trung tâm gia sản / family office
+    "titans": [
+        "BlackRock OR \"Larry Fink\"", "\"Vanguard Group\" OR Vanguard funds", "\"State Street\" SSGA OR \"State Street Global\"",
+        "Blackstone", "\"Bridgewater Associates\" OR \"Ray Dalio\"", "Citadel \"Ken Griffin\" OR \"Citadel Securities\"",
+        "\"Norges Bank Investment Management\" OR \"Norway wealth fund\"", "\"Public Investment Fund\" Saudi PIF",
+        "Temasek", "\"GIC\" Singapore sovereign", "JPMorgan OR \"Jamie Dimon\"", "\"UBS\" bank",
+        "\"Goldman Sachs\"", "\"Morgan Stanley\"", "\"HSBC\"", "\"BNP Paribas\"", "KKR", "Apollo Global",
+        "family office Singapore VCC OR 13O OR 13U", "DIFC family office OR foundation Dubai",
+        "Swiss private bank wealth Zurich", "London non-dom wealthy exodus", "sovereign wealth fund",
     ],
 }

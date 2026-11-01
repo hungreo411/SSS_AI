@@ -111,6 +111,13 @@ TOPICS = [
               "cắt giảm lãi suất", "tăng lãi suất", "monetary policy", "chính sách tiền tệ"],
       normal=["tín dụng", "ngân hàng", "tiền gửi", "nợ xấu", "thanh khoản ngân hàng", "central bank", "yield", "lợi suất"],
       cs=["Fed", "FED", "BOJ", "SBV"]),
+    T(id="trai_phieu", label="Trái phiếu - Municipal Bond - Margin", spec=2.2, weight=1.4,
+      strong=["trái phiếu chính quyền địa phương", "trái phiếu địa phương", "municipal bond", "trái phiếu doanh nghiệp",
+              "trái phiếu xanh", "green bond", "trái phiếu chính phủ", "vốn cấp 2", "tier 2", "dư nợ margin", "margin",
+              "cho vay ký quỹ", "thông tư 50", "ldr", "basel iii", "lcr", "nsfr", "trái phiếu riêng lẻ", "hnx trái phiếu",
+              "corporate bond", "bond issuance", "đáo hạn trái phiếu", "tcbs", "chứng khoán kỹ thương"],
+      normal=["trái phiếu", "lãi suất coupon", "phát hành", "bảo lãnh tín dụng", "guarantco", "bond", "bonds"],
+      weak=["nợ"]),
     T(id="ty_gia_vang", label="Tỷ giá - Vàng - Hàng hoá", spec=1.5, weight=1.2,
       strong=["tỷ giá", "giá vàng", "vàng miếng", "vàng sjc", "usd/vnd", "đồng usd", "chỉ số dxy", "dxy",
               "giá dầu", "dầu brent", "dầu wti", "opec", "gold price", "oil price", "oil prices", "dollar index"],
@@ -163,6 +170,12 @@ TOPICS = [
       normal=["vũng tàu", "bà rịa", "baria vung tau", "vung tau", "khu thương mại tự do", "free trade zone", "ftz",
               "cảng nước sâu", "cảng biển", "logistics"],
       weak=[]),
+    T(id="family_office", label="Family Office & trung tâm gia sản", spec=2.5, weight=1.4,
+      strong=["family office", "family offices", "văn phòng gia đình", "quản lý gia sản", "private banking", "wealth management",
+              "ultra-high-net-worth", "uhnw", "siêu giàu", "vcc", "variable capital company", "section 13o", "section 13u",
+              "difc", "adgm", "non-dom", "lombard", "thừa kế", "inheritance tax", "dynasty trust", "private bank"],
+      normal=["tỷ phú", "billionaire", "wealthy", "giới giàu", "gia tộc", "trust", "foundation"],
+      weak=["tài sản"]),
     T(id="bds", label="Bất động sản", spec=1.2, weight=1.0,
       strong=["bất động sản", "thị trường nhà ở", "giá nhà", "chung cư", "căn hộ", "đất nền", "nhà ở xã hội",
               "khu đô thị", "real estate", "property market", "home prices", "housing market"],
@@ -215,9 +228,10 @@ OTHER = dict(id="khac", label="Thời sự khác", spec=0, weight=0.6)
 from .regions import REGIONS  # noqa: E402
 TOPIC_BY_ID = {t["id"]: t for t in TOPICS + REGIONS + [OTHER]}
 # Thứ tự hiển thị: Việt Nam trước, rồi thế giới theo quốc gia. kinh_te_tq / chinh_tri_my được gộp vào Trung Quốc / Mỹ.
-_VN_ORDER = ["bct_vn", "chinh_sach_vn", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "ty_gia_vang", "von_ngoai",
+_VN_ORDER = ["bct_vn", "chinh_sach_vn", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "trai_phieu", "ty_gia_vang",
+             "von_ngoai",
              "quy_dau_tu", "fdi", "dau_tu_cong", "ha_tang_hcm", "cai_mep", "bds", "thuong_mai", "phap_luat", "kinh_te"]
-_WORLD_ORDER = ["bau_cu_my", "r_my", "chinh_tri_tq", "r_tq", "r_hk", "r_eu", "r_sg", "r_gulf", "r_asia",
+_WORLD_ORDER = ["bau_cu_my", "r_my", "chinh_tri_tq", "r_tq", "r_hk", "r_eu", "r_sg", "r_gulf", "r_asia", "family_office",
                 "dia_chinh_tri", "cong_nghe", "kinh_te_tq", "chinh_tri_my"]
 DISPLAY = [("Việt Nam", _VN_ORDER), ("Thế giới theo quốc gia", _WORLD_ORDER)]
 

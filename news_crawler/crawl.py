@@ -203,6 +203,8 @@ def crawl_gnews(fetcher, opts, sources):
         jobs.append((q, "hl=vi&gl=VN&ceid=VN:vi", None))
     for q in GNEWS_TOPIC_QUERIES["en"]:
         jobs.append((q, "hl=en-US&gl=US&ceid=US:en", None))
+    for q in GNEWS_TOPIC_QUERIES.get("titans", []):
+        jobs.append((q, "hl=en-US&gl=US&ceid=US:en", None))
     for s in sources:
         if s.get("gnews_site"):
             jobs.append((f"site:{s['gnews_site']}", "hl=en-US&gl=US&ceid=US:en", s))

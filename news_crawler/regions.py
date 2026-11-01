@@ -23,13 +23,15 @@ TITANS = {
     "r_my": ["JPMorgan", "J.P. Morgan", "Goldman Sachs", "Morgan Stanley", "Citigroup", "Citi", "Bank of America",
              "Wells Fargo", "BlackRock", "Blackstone", "KKR", "Apollo Global", "Carlyle", "Vanguard", "State Street",
              "Fidelity", "Berkshire Hathaway", "Warren Buffett", "Bridgewater", "Citadel", "Brookfield",
+             "Larry Fink", "Jamie Dimon", "Ray Dalio", "Ken Griffin", "David Solomon", "Ted Pick", "SSGA", "iShares",
              "Apple", "Microsoft", "Nvidia", "Alphabet", "Google", "Amazon", "Meta", "Tesla", "Elon Musk", "Broadcom",
              "Oracle", "OpenAI", "Anthropic", "ExxonMobil", "Exxon", "Chevron", "Walmart", "Intel", "AMD", "Boeing",
              "Mastercard", "Netflix", "Qualcomm", "Micron", "Pfizer", "Eli Lilly", "UnitedHealth"],
     "r_eu": ["BNP Paribas", "HSBC", "Deutsche Bank", "UBS", "Barclays", "Santander", "Société Générale", "Societe Generale",
              "ING", "Allianz", "AXA", "Amundi", "Standard Chartered", "Lloyds", "NatWest", "UniCredit", "Intesa Sanpaolo",
              "LVMH", "ASML", "SAP", "Siemens", "Shell", "BP", "TotalEnergies", "Nestlé", "Nestle", "Novo Nordisk",
-             "Volkswagen", "Mercedes-Benz", "BMW", "Airbus", "Norges Bank", "Norway's sovereign wealth fund",
+             "Volkswagen", "Mercedes-Benz", "BMW", "Airbus", "Norges Bank", "Norway's sovereign wealth fund", "NBIM",
+             "Credit Suisse", "Pictet", "Julius Baer", "Lombard Odier", "AXA Investment Managers",
              "quỹ tài sản quốc gia Na Uy", "EQT", "Roche", "Novartis", "Unilever", "AstraZeneca", "Stellantis"],
     "r_tq": ["ICBC", "China Construction Bank", "Agricultural Bank of China", "Bank of China", "China Investment Corp",
              "Alibaba", "Tencent", "BYD", "Huawei", "CATL", "Xiaomi", "PetroChina", "Sinopec", "Evergrande",
@@ -40,7 +42,7 @@ TITANS = {
              "Monetary Authority of Singapore", "Wilmar"],
     "r_gulf": ["Mubadala", "ADIA", "Abu Dhabi Investment Authority", "ADQ", "Emaar", "DP World", "Emirates NBD",
                "Investment Corporation of Dubai", "DIFC", "ADNOC", "G42", "MGX", "Saudi Aramco", "Aramco",
-               "Public Investment Fund", "PIF", "Qatar Investment Authority", "QIA", "First Abu Dhabi Bank"],
+               "Public Investment Fund", "PIF", "NEOM", "DIFC", "ADGM", "Qatar Investment Authority", "QIA", "First Abu Dhabi Bank"],
     "r_asia": ["Toyota", "SoftBank", "MUFG", "Mitsubishi UFJ", "Mizuho", "SMBC", "Sumitomo Mitsui", "Sony",
                "Nippon Steel", "Nikkei 225", "Samsung", "SK Hynix", "Hyundai", "LG Electronics", "TSMC", "Foxconn",
                "Reliance Industries", "Tata", "Adani", "Infosys"],
@@ -123,3 +125,8 @@ def detect_region(title, desc):
 
 def is_vietnam(title, desc):
     return bool(VN_RX.search(title) or VN_RX.search((desc or "")[:400]))
+
+
+# 16 "Titans" theo Knowledge Base v3 -> lối tắt lọc nhanh trên bản tin
+KB_TITANS = ["BlackRock", "Vanguard", "State Street", "Blackstone", "Bridgewater", "Citadel", "NBIM", "PIF",
+             "Temasek", "GIC", "JPMorgan", "UBS", "Goldman Sachs", "Morgan Stanley", "HSBC", "BNP Paribas"]

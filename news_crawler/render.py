@@ -6,11 +6,11 @@ from datetime import datetime
 
 from .digest import bullets, cluster
 from .extract import VN_TZ
-from .regions import REGION_BY_ID, detect_region, is_vietnam
+from .regions import KB_TITANS, REGION_BY_ID, detect_region, is_vietnam
 from .topics import DISPLAY, OTHER, TOPIC_BY_ID, classify, importance
 
 # Topic gắn chặt với Việt Nam: giữ nguyên nếu bài có nhắc Việt Nam
-_KEEP_TOPICS = {"bau_cu_my", "chinh_tri_tq"}
+_KEEP_TOPICS = {"bau_cu_my", "chinh_tri_tq", "family_office"}
 _ABSORB = {"kinh_te_tq": "r_tq", "chinh_tri_my": "r_my"}
 
 
@@ -140,7 +140,7 @@ details{margin-top:26px}summary{cursor:pointer;font-weight:600}
 .ng{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%}.ng>span{font-size:11px;text-transform:uppercase;
 letter-spacing:.05em;color:var(--muted);margin-right:4px}nav{flex-direction:column;gap:8px}
 h2.grp{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-top:36px;border-top:2px solid var(--line);padding-top:14px}
-.ti{font-size:11px;color:var(--link);margin-top:2px}
+.ti{font-size:11px;color:var(--link);margin-top:2px}nav a.tt{background:transparent;border:1px solid var(--line)}
 .bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line)}
 .lvb{display:flex;gap:4px}.lvb button{font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;
 background:var(--card);color:var(--text);cursor:pointer}.lvb button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
@@ -157,7 +157,7 @@ var rows=[].slice.call(document.querySelectorAll('tr[data-l]'));
 var txt=rows.map(function(r){return r.textContent.toLowerCase()}),lvl=rows.map(function(r){return +r.getAttribute('data-l')});
 var secs=[].slice.call(document.querySelectorAll('h2[id]')).map(function(h){var b=h.nextElementSibling;
   return {h:h,box:b,sm:h.querySelector('small'),rows:b?[].slice.call(b.querySelectorAll('tr[data-l]')):[],
-          chip:document.querySelector('nav a[href="#'+h.id+'"]')}}).filter(function(s){return s.box});
+          chip:document.querySelector('nav a[href="#'+h.id+'"]:not(.tt)')}}).filter(function(s){return s.box});
 var kh=document.getElementById('khac'),khRows=kh?[].slice.call(kh.querySelectorAll('tr[data-l]')):[],
     khSum=kh?kh.querySelector('summary'):null,khChip=document.querySelector('nav a[href="#khac"]');
 var grps=[].slice.call(document.querySelectorAll('h2.grp'));
@@ -179,6 +179,9 @@ function run(){
 btns.forEach(function(b){b.addEventListener('click',function(){m=+b.getAttribute('data-m');
   btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')});run()})});
 q.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(run,200)});
+[].slice.call(document.querySelectorAll('a.tt')).forEach(function(a){a.addEventListener('click',function(e){
+  e.preventDefault();q.value=(q.value.toLowerCase()===a.getAttribute('data-q').toLowerCase())?'':a.getAttribute('data-q');run();
+  window.scrollTo(0,q.getBoundingClientRect().top+window.pageYOffset-8)})});
 run();
 })();
 """
@@ -236,6 +239,8 @@ def render(items, reports, opts, now_ts, top_n=30):
         chips = "".join(f'<a href="#{k}">{_e(TOPIC_BY_ID[k]["label"])}<b>{len(by_topic[k])}</b></a>'
                         for k in order if by_topic[k])
         nav += f'<div class="ng"><span>{group}</span>{chips}</div>'
+    nav += '<div class="ng"><span>Titans</span>' + "".join(
+        f'<a href="#top" class="tt" data-q="{_e(n)}">{_e(n)}</a>' for n in KB_TITANS) + "</div>"
     if by_topic["khac"]:
         nav += f'<div class="ng"><span>Khác</span><a href="#khac">{OTHER["label"]}<b>{len(by_topic["khac"])}</b></a></div>'
     parts = [f"""<!doctype html><html lang="vi"><head><meta charset="utf-8">
