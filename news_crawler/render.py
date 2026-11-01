@@ -82,6 +82,24 @@ def _level(score):
             return lv, label
 
 
+def select_top(items, n, cap):
+    """Chọn n tin quan trọng nhất trên mọi topic; mỗi topic tối đa `cap` tin để topic nào cũng có mặt.
+    Bỏ "Thời sự khác". Nếu chưa đủ n thì nới giới hạn mỗi topic."""
+    pool = [it for it in items if it["topic"] != OTHER["id"]]
+    pool.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
+    chosen, count = [], Counter()
+    for limit in (cap, cap * 2, n):
+        for it in pool:
+            if len(chosen) >= n:
+                break
+            if it in chosen or count[it["topic"]] >= limit:
+                continue
+            chosen.append(it)
+            count[it["topic"]] += 1
+    chosen.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
+    return chosen
+
+
 # ------------------------------------------------------------------ HTML
 CSS = """
 :root{--bg:#f6f7f9;--card:#fff;--text:#16181d;--muted:#667085;--line:#e4e7ec;--accent:#b42318;--link:#1d4ed8;
