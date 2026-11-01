@@ -1,5 +1,6 @@
 """Gom bài -> sự kiện -> chấm điểm -> xuất 1 file HTML tĩnh."""
 import html
+import re
 from collections import Counter
 from datetime import datetime
 
@@ -35,6 +36,12 @@ def build_items(arts, now_ts):
     for a in arts:
         # bỏ tiêu đề rác quá ngắn ("Vietnam Economy", "Văn nghệ - Thể thao"...)
         if a["url"] in seen or len(a["title"].split()) < 4:
+            continue
+        # trang chuyên mục / chuyên đề lưu trữ: tiêu đề viết HOA toàn bộ hoặc dạng "Tin tức ... | Báo X"
+        letters = [c for c in a["title"] if c.isalpha()]
+        if letters and sum(c.isupper() for c in letters) / len(letters) > 0.8:
+            continue
+        if re.search(r"\s\|\s", a["title"]) and not re.search(r"\d{4,}", a["url"]):
             continue
         seen.add(a["url"])
         uniq.append(a)

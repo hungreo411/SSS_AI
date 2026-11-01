@@ -27,6 +27,7 @@ def main(argv=None):
     ap.add_argument("--out", help="file HTML đầu ra (mặc định reports/ban-tin-YYYYMMDD-HHMM.html)")
     ap.add_argument("--cache", default=".cache", help="thư mục cache")
     ap.add_argument("--cache-only", action="store_true", help="dựng lại bản tin từ cache, không tải mới")
+    ap.add_argument("--json", help="xuất thêm danh sách tin ra file JSON (để duyệt / chọn lọc thủ công)")
     ap.add_argument("--list", action="store_true", help="liệt kê nguồn rồi thoát")
     ap.add_argument("-v", "--verbose", action="store_true")
     a = ap.parse_args(argv)
@@ -59,6 +60,13 @@ def main(argv=None):
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         f.write(render(items, reps, o, now))
+    if a.json:
+        import json
+        keep = ("topic", "sub", "titans", "title", "url", "source", "ts", "bullets", "others", "level", "score",
+                "n_sources", "lang", "tier")
+        with open(a.json, "w", encoding="utf-8") as f:
+            json.dump({"items": [{k: i.get(k) for k in keep} for i in items], "reports": reps, "hours": o.hours,
+                       "now": now}, f, ensure_ascii=False)
     print(f"Xong sau {time.time() - t0:.0f}s: {len(arts)} bài -> {len(items)} sự kiện. "
           f"HTTP ok={fetcher.stats['ok']} lỗi={fetcher.stats['fail']} cache={fetcher.stats['cache']}")
     print(f"File: {os.path.abspath(out)}")
