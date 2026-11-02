@@ -227,6 +227,7 @@ GNEWS_TOPIC_QUERIES = {
         "trái phiếu chính quyền địa phương TP.HCM", "trái phiếu doanh nghiệp phát hành", "Thông tư 50/2026 NHNN",
         "dư nợ margin chứng khoán", "Chứng khoán Kỹ thương TCBS", "Techcombank", "FTSE Russell Việt Nam",
         "tăng trưởng tín dụng", "nợ xấu ngân hàng", "tỷ giá USD VND",
+        "luật hiến lấy ghép mô bộ phận cơ thể người", "hiến tạng", "hiến xác", "ghép tạng",
     ],
     "en": [
         "US midterm elections", "Vietnam economy", "Vietnam stocks foreign investors",

@@ -79,6 +79,12 @@ TOPICS = [
       normal=["quốc hội", "đại biểu quốc hội", "ủy ban thường vụ quốc hội", "chính phủ", "thủ tướng", "phó thủ tướng",
               "nghị định", "nghị quyết", "bộ trưởng", "luật", "chính sách", "ban hành", "national assembly", "prime minister"],
       weak=["ubnd", "hđnd", "tỉnh"]),
+    T(id="hien_tang", label="Dự luật hiến, ghép mô tạng", spec=3.0, weight=1.4,
+      strong=["hiến mô", "hiến tạng", "ghép tạng", "ghép mô", "hiến xác", "hiến, lấy, ghép", "lấy, ghép mô",
+              "bộ phận cơ thể người", "chết não", "hiến giác mạc", "ngân hàng mô", "điều phối ghép tạng",
+              "organ donation", "organ transplant"],
+      normal=["hiến máu", "ghép thận", "ghép gan", "ghép tim", "cấy ghép", "người hiến", "người nhận tạng"],
+      weak=[]),
     T(id="tttc", label="Trung tâm tài chính quốc tế", spec=3.0, weight=1.6,
       strong=["trung tâm tài chính quốc tế", "trung tâm tài chính khu vực", "trung tâm tài chính", "international financial centre",
               "international financial center", "financial hub", "nghị quyết 222", "ifc tại việt nam", "ifc đà nẵng",
@@ -228,7 +234,7 @@ OTHER = dict(id="khac", label="Thời sự khác", spec=0, weight=0.6)
 from .regions import REGIONS  # noqa: E402
 TOPIC_BY_ID = {t["id"]: t for t in TOPICS + REGIONS + [OTHER]}
 # Thứ tự hiển thị: Việt Nam trước, rồi thế giới theo quốc gia. kinh_te_tq / chinh_tri_my được gộp vào Trung Quốc / Mỹ.
-_VN_ORDER = ["bct_vn", "chinh_sach_vn", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "trai_phieu", "ty_gia_vang",
+_VN_ORDER = ["bct_vn", "chinh_sach_vn", "hien_tang", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "trai_phieu", "ty_gia_vang",
              "von_ngoai",
              "quy_dau_tu", "fdi", "dau_tu_cong", "ha_tang_hcm", "cai_mep", "bds", "thuong_mai", "phap_luat", "kinh_te"]
 _WORLD_ORDER = ["bau_cu_my", "r_my", "chinh_tri_tq", "r_tq", "r_hk", "r_eu", "r_sg", "r_gulf", "r_asia", "family_office",
