@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import quote_plus, urljoin, urlparse
 
 from . import extract as X
+from .companies import gnews_jobs as company_jobs
 from .sources import GNEWS_TOPIC_QUERIES, SOURCES
 
 FEED_TTL = 900  # RSS / trang chuyên mục cache 15 phút
@@ -20,6 +21,8 @@ class Opts:
     workers = 6
     verbose = False
     keep_undated = True
+    companies = True   # quét Google News cho top 50 vốn hóa VN / Mỹ / Trung Quốc / châu Âu
+    per_company = 15   # số tin tối đa lấy mỗi mã
 
 
 def log(opts, *a):
@@ -208,13 +211,17 @@ def crawl_gnews(fetcher, opts, sources):
     for s in sources:
         if s.get("gnews_site"):
             jobs.append((f"site:{s['gnews_site']}", "hl=en-US&gl=US&ceid=US:en", s))
+    jobs = [(q, loc, src, None, None) for q, loc, src in jobs]
+    if opts.companies:  # top 50 vốn hóa VN / Mỹ / Trung Quốc / châu Âu: mỗi mã một truy vấn
+        for q, loc, hint in company_jobs():
+            jobs.append((q, loc, None, hint, opts.per_company))
 
     def run(job):
-        q, loc, src = job
+        q, loc, src, hint, limit = job
         url = f"https://news.google.com/rss/search?q={quote_plus(q + f' when:{days}d')}&{loc}"
         xml = fetcher.get(url, ttl=FEED_TTL)
         res = []
-        for it in X.parse_feed(xml or ""):
+        for it in X.parse_feed(xml or "")[:limit]:
             title, name = it["title"], it.get("source_name")
             m = re.match(r"^(.*)\s+-\s+([^-]{2,60})$", title)
             if m:
@@ -224,7 +231,7 @@ def crawl_gnews(fetcher, opts, sources):
                             group=src.get("group", "INTL") if src else "GNEWS",
                             tier=src["tier"] if src else (1 if _TIER1_NAMES.search(name) else 3),
                             lang="en" if "hl=en" in loc else "vi", url=it["url"], title=title,
-                            desc="", paras=[], ts=it["ts"], via="gnews"))
+                            desc="", paras=[], ts=it["ts"], via="gnews", company_hint=hint))
         return res
 
     out = []

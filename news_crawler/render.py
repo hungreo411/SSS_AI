@@ -6,12 +6,34 @@ from datetime import datetime
 
 from .digest import bullets, cluster
 from .extract import VN_TZ
+from .companies import COMPANIES, find_company
 from .regions import KB_TITANS, REGION_BY_ID, detect_region, is_vietnam
 from .topics import DISPLAY, OTHER, TOPIC_BY_ID, classify, importance
 
 # Topic gắn chặt với Việt Nam: giữ nguyên nếu bài có nhắc Việt Nam
 _KEEP_TOPICS = {"bau_cu_my", "chinh_tri_tq", "family_office"}
 _ABSORB = {"kinh_te_tq": "r_tq", "chinh_tri_my": "r_my"}
+
+
+_RANK = {(mid, lab): r for mid, lst in COMPANIES.items() for r, (lab, _, _) in enumerate(lst)}
+
+
+def assign_company(a):
+    """Tin nhắc tới doanh nghiệp top 50 vốn hóa (VN/Mỹ/TQ/châu Âu) -> mục doanh nghiệp đó; topic cũ thành nhãn phụ."""
+    a["company"] = None
+    if a["topic"] == "hien_tang":
+        return
+    co = find_company(a["title"], a.get("lang"))
+    if co:
+        mid, rank, label = co
+    elif a.get("company_hint"):
+        mid, label = a["company_hint"]
+        rank = _RANK.get((mid, label), 99)
+    else:
+        return
+    if a["topic"] not in (OTHER["id"],) and not a.get("sub"):
+        a["sub"] = TOPIC_BY_ID[a["topic"]]["label"]
+    a["topic"], a["company"], a["crank"] = mid, label, rank
 
 
 def assign_region(a):
@@ -51,6 +73,7 @@ def build_items(arts, now_ts):
         a["bullets"] = bullets(a["title"], a["desc"], a["paras"], a["topic"])
         a["summary"] = " ".join(a["bullets"])
         assign_region(a)
+        assign_company(a)
     items = []
     for group in cluster(uniq).values():
         group.sort(key=lambda a: (a["via"] == "gnews", not a["paras"], a["tier"], -(len(a["bullets"][1]))))
@@ -62,6 +85,9 @@ def build_items(arts, now_ts):
             rep["topic"], rep["sub"] = donor_t, donor.get("sub")
             rep["bullets"] = bullets(rep["title"], rep["desc"], rep["paras"], rep["topic"])
         rep["titans"] = sorted({n for a in group for n in a.get("titans", [])})
+        co = next((a for a in group if a.get("company")), None)
+        if co and not rep.get("company"):
+            rep["topic"], rep["company"], rep["crank"], rep["sub"] = co["topic"], co["company"], co["crank"], co.get("sub")
         # tin chỉ có tiêu đề (Google News / báo trả phí): mượn sapo của bài cùng sự kiện nếu có
         if not rep["bullets"][0]:
             donor = next((a for a in group[1:] if a["bullets"][0]), None)
@@ -209,7 +235,8 @@ def _row(it, show_topic=True):
     content = "<ul>" + "".join(f"<li>{_e(b)}</li>" for b in bl) + "</ul>" if bl else \
         '<span class="tag">(Nguồn chỉ cung cấp tiêu đề — mở link để đọc)</span>'
     dots = "●" * it["level"] + "○" * (5 - it["level"])
-    topic_cell = (f'<td class="t">{_e(t["label"])}' + (f'<div class="tag">· {_e(tags)}</div>' if tags else "")
+    label = it.get("company") or t["label"]
+    topic_cell = (f'<td class="t">{"<b>" if it.get("company") else ""}{_e(label)}{"</b>" if it.get("company") else ""}' + (f'<div class="tag">· {_e(tags)}</div>' if tags else "")
                   + (f'<div class="ti">{_e(titan)}</div>' if titan else "") + "</td>")
     return (f'<tr data-l="{it["level"]}">{topic_cell}'
             f'<td class="h"><a href="{_e(it["url"])}" target="_blank" rel="noopener">{_e(it["title"])}</a>'
@@ -231,6 +258,8 @@ def render(items, reports, opts, now_ts, top_n=30):
     for it in items:
         if id(it) not in top_ids:  # tin ở Tiêu điểm không lặp lại bên dưới
             by_topic[it["topic"]].append(it)
+    for k in ("co_vn", "co_us", "co_cn", "co_eu"):
+        by_topic[k].sort(key=lambda r: (r.get("crank", 99), -r["score"], -(r["ts"] or 0)))
     n_src_ok = sum(1 for r in reports if r["status"] == "ok")
     n_arts = sum(r["articles"] for r in reports)
     gen = datetime.fromtimestamp(now_ts, VN_TZ).strftime("%H:%M ngày %d/%m/%Y")
