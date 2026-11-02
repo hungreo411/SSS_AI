@@ -7,7 +7,7 @@ from datetime import datetime
 from .crawl import Opts, crawl_all
 from .extract import VN_TZ
 from .fetch import Fetcher
-from .render import build_items, render, select_top
+from .render import build_items, render, select_balanced, select_top
 from .sources import SOURCES
 
 
@@ -23,6 +23,7 @@ def main(argv=None):
     ap.add_argument("--no-sitemap", action="store_true", help="tắt đọc sitemap")
     ap.add_argument("--min-level", type=int, default=1, help="chỉ xuất tin có mức độ >= N (1-5)")
     ap.add_argument("--top", type=int, help="chỉ giữ N tin quan trọng nhất (chọn lọc trên mọi topic)")
+    ap.add_argument("--balanced", type=int, help="chọn khoảng N tin quan trọng: mỗi topic ~20 tin, mỗi doanh nghiệp top 50 ~2 tin")
     ap.add_argument("--cap-per-topic", type=int, default=15, help="với --top: tối đa bao nhiêu tin mỗi topic (mặc định 15)")
     ap.add_argument("--out", help="file HTML đầu ra (mặc định reports/ban-tin-YYYYMMDD-HHMM.html)")
     ap.add_argument("--cache", default=".cache", help="thư mục cache")
@@ -56,6 +57,8 @@ def main(argv=None):
     items = [i for i in build_items(arts, now) if i["level"] >= a.min_level]
     if a.top:
         items = select_top(items, a.top, a.cap_per_topic)
+    elif a.balanced:
+        items = select_balanced(items, a.balanced)
     out = a.out or os.path.join("reports", datetime.now(VN_TZ).strftime("ban-tin-%Y%m%d-%H%M.html"))
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:

@@ -39,7 +39,7 @@ COMPANIES = {
         "ACV"), _vn("VEA", "VEAM"), _vn("OCB", "OCB"), _vn("EIB", "Eximbank"), _vn("KDH", "Khang Điền"),
         _vn("PNJ", "PNJ"), _vn("REE", "REE"), _vn("SSI", "Chứng khoán SSI", "SSI"), _vn("GEX", "Gelex"),
         _vn("NVL", "Novaland"), _vn("MSB", "MSB"), _vn("VPL", "Vinpearl"), _vn("TCX", "TCBS", "Chứng khoán Techcom"),
-        _vn("VCI", "Vietcap"), _vn("KBC", "Kinh Bắc", "KBC"), _vn("DXG", "Đất Xanh"), _vn("FRT", "FPT Retail", "Long Châu"),
+        _vn("VCI", "Vietcap"), _vn("KBC", "Kinh Bắc Group", "KBC"), _vn("DXG", "Đất Xanh"), _vn("FRT", "FPT Retail", "Long Châu"),
     ],
     "co_us": [
         _en("Nvidia", "NVIDIA"), _en("Microsoft"), _en("Apple", q='"Apple Inc" OR "Apple stock" OR "Apple shares"'),

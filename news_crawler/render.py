@@ -133,6 +133,54 @@ def select_top(items, n, cap):
     return chosen
 
 
+# Tin rác thường lọt vào khi quét Google News theo tên doanh nghiệp / định chế
+_JUNK = re.compile(
+    r"seasonal returns? chart|seasonals chart|stock price, news, quote|estimates –|financials - ft\.com|"
+    r"summary - ft\.com|income statement|shares (?:sold|purchased|acquired) by|stake (?:lifted|cut|raised) by|"
+    r"position in|holdings? in .* (?:inc|corp)|\bcall \(|\bput \(|price target|enterprise value to ebitda|"
+    r"\b(?:ipl|cricket|tennis|atp|wta|motogp|football|baseball|nba|nfl|squad|auction|live stream|vs\.? )\b|"
+    r"match - |maxpreps|stock pdf|earnings call presentation|hamilton|leclerc|grand prix|formula 1|\\bf1\\b|liverpool|premier league|"
+    r"\\bdome\\b|concert|live review|should you (?:buy|sell)|\\bprice:|\\bappoints\\b|"
+    r"con giáp|tử vi|phong thủy|mẹo|thủ thuật|lịch thi đấu|olympia|cận cảnh nhà|rao bán|cương thi|"
+    r"\bSN (?:19|20)\d\d\b|tin tức .* mới nhất|bảng giá|tỷ giá usd hôm nay|lãi suất ngân hàng hôm nay|"
+    r"giá vàng hôm nay|giá xăng dầu hôm nay|giá cà phê hôm nay|nguyễn phú trọng|phạm minh chính|khóa xiii|khoá xiii|"
+    r"năm 202[2-4]\b", re.IGNORECASE)
+
+
+def is_junk(it):
+    return bool(_JUNK.search(it["title"]))
+
+
+def select_balanced(items, total=1000, per_topic=20, per_company=2):
+    """Chọn khoảng `total` tin quan trọng: mỗi doanh nghiệp top 50 lấy `per_company` tin, mỗi topic lấy
+    `per_topic` tin điểm cao nhất (topic ít tin thì lấy hết), phần còn lại chia theo điểm. Bỏ tin rác và "Thời sự khác"."""
+    pool = [it for it in items if it["topic"] != OTHER["id"] and not is_junk(it)]
+    pool.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
+    chosen, ids = [], set()
+
+    def take(it):
+        if id(it) not in ids:
+            ids.add(id(it))
+            chosen.append(it)
+
+    per_co = Counter()
+    for it in pool:
+        if it.get("company") and per_co[it["company"]] < per_company:
+            per_co[it["company"]] += 1
+            take(it)
+    per_t = Counter()
+    for it in pool:
+        if not it.get("company") and per_t[it["topic"]] < per_topic:
+            per_t[it["topic"]] += 1
+            take(it)
+    for it in pool:  # lấp đầy tới `total` bằng tin điểm cao còn lại
+        if len(chosen) >= total:
+            break
+        take(it)
+    chosen.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
+    return chosen
+
+
 # ------------------------------------------------------------------ HTML
 CSS = """
 :root{--bg:#f6f7f9;--card:#fff;--text:#16181d;--muted:#667085;--line:#e4e7ec;--accent:#b42318;--link:#1d4ed8;
