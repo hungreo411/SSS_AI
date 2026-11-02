@@ -228,6 +228,11 @@ GNEWS_TOPIC_QUERIES = {
         "dư nợ margin chứng khoán", "Chứng khoán Kỹ thương TCBS", "Techcombank", "FTSE Russell Việt Nam",
         "tăng trưởng tín dụng", "nợ xấu ngân hàng", "tỷ giá USD VND",
         "luật hiến lấy ghép mô bộ phận cơ thể người", "hiến tạng", "hiến xác", "ghép tạng",
+        # nhân sự bộ máy nhà nước & văn bản pháp luật mới
+        "bổ nhiệm thứ trưởng", "bổ nhiệm bộ trưởng", "Bộ Chính trị điều động", "Ban Bí thư chỉ định",
+        "ủy viên Trung ương Đảng", "bí thư tỉnh ủy mới", "Thủ tướng bổ nhiệm", "kỷ luật cán bộ cấp cao",
+        "Quốc hội thông qua luật", "dự án luật kỳ họp thứ 2", "nghị định mới ban hành", "luật có hiệu lực",
+        "thông tư mới có hiệu lực", "luật sửa đổi",
     ],
     "en": [
         "US midterm elections", "Vietnam economy", "Vietnam stocks foreign investors",

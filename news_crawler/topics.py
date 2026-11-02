@@ -79,6 +79,22 @@ TOPICS = [
       normal=["quốc hội", "đại biểu quốc hội", "ủy ban thường vụ quốc hội", "chính phủ", "thủ tướng", "phó thủ tướng",
               "nghị định", "nghị quyết", "bộ trưởng", "luật", "chính sách", "ban hành", "national assembly", "prime minister"],
       weak=["ubnd", "hđnd", "tỉnh"]),
+    T(id="nhan_su", label="Nhân sự bộ máy Nhà nước", spec=3.2, weight=1.8,
+      strong=["bổ nhiệm", "miễn nhiệm", "điều động", "phê chuẩn", "bầu giữ chức", "giữ chức", "thôi giữ chức",
+              "cách chức", "khai trừ", "kỷ luật", "tân bộ trưởng", "tân thứ trưởng", "tân bí thư", "tân chủ tịch",
+              "ủy viên bộ chính trị", "uỷ viên bộ chính trị", "ủy viên trung ương", "ủy viên ban chấp hành trung ương",
+              "trao quyết định", "chuẩn y", "kiện toàn", "phân công", "tứ trụ", "chỉ định", "nghỉ hưu"],
+      normal=["thứ trưởng", "bộ trưởng", "bí thư tỉnh ủy", "bí thư thành ủy", "chủ tịch ubnd", "phó thủ tướng",
+              "nhân sự", "cán bộ"],
+      weak=[],
+      exclude=["tổng giám đốc", "ngân hàng", "công ty", "ceo", "hđqt", "hội đồng quản trị", "cổ đông", "doanh nghiệp"]),
+    T(id="luat_moi", label="Luật - Văn bản pháp luật mới", spec=2.8, weight=1.6,
+      strong=["luật", "dự án luật", "dự thảo luật", "bộ luật", "pháp lệnh", "nghị định", "thông tư", "luật sửa đổi",
+              "sửa đổi, bổ sung", "có hiệu lực", "quy định mới", "chính sách mới", "quốc hội thông qua",
+              "thông qua luật", "biểu quyết thông qua"],
+      normal=["nghị quyết", "ban hành", "dự thảo", "văn bản", "quy định"],
+      weak=[],
+      exclude=["luật sư", "vi phạm luật giao thông"]),
     T(id="hien_tang", label="Dự luật hiến, ghép mô tạng", spec=3.0, weight=1.4,
       strong=["hiến mô", "hiến tạng", "ghép tạng", "ghép mô", "hiến xác", "hiến, lấy, ghép", "lấy, ghép mô",
               "bộ phận cơ thể người", "chết não", "hiến giác mạc", "ngân hàng mô", "điều phối ghép tạng",
@@ -235,7 +251,7 @@ from .regions import REGIONS  # noqa: E402
 from .companies import MARKETS  # noqa: E402
 TOPIC_BY_ID = {t["id"]: t for t in TOPICS + REGIONS + MARKETS + [OTHER]}
 # Thứ tự hiển thị: Việt Nam trước, rồi thế giới theo quốc gia. kinh_te_tq / chinh_tri_my được gộp vào Trung Quốc / Mỹ.
-_VN_ORDER = ["bct_vn", "chinh_sach_vn", "hien_tang", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "trai_phieu", "ty_gia_vang",
+_VN_ORDER = ["bct_vn", "nhan_su", "chinh_sach_vn", "luat_moi", "hien_tang", "tttc", "vn100", "chung_khoan", "vi_mo", "lai_suat", "trai_phieu", "ty_gia_vang",
              "von_ngoai",
              "quy_dau_tu", "fdi", "dau_tu_cong", "ha_tang_hcm", "cai_mep", "bds", "thuong_mai", "phap_luat", "kinh_te"]
 _WORLD_ORDER = ["bau_cu_my", "r_my", "chinh_tri_tq", "r_tq", "r_hk", "r_eu", "r_sg", "r_gulf", "r_asia", "family_office",
