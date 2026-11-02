@@ -92,7 +92,7 @@ TOPICS = [
       normal=["sandbox", "tài sản số", "tài sản mã hóa", "sàn giao dịch tài sản", "đặc khu kinh tế", "ngân hàng số",
               "fintech", "sàn giao dịch hàng hóa quốc tế"],
       weak=["thu hút dòng vốn", "định chế tài chính"]),
-    T(id="vn100", label="Doanh nghiệp VN100", spec=2.0, weight=1.2,
+    T(id="vn100", label="Doanh nghiệp VN100 ngoài top 50", spec=2.0, weight=1.2,
       strong=[], normal=[], weak=["cổ phiếu", "doanh nghiệp niêm yết", "lợi nhuận", "doanh thu", "đhđcđ", "cổ tức"],
       special="vn100"),
     T(id="chung_khoan", label="Chứng khoán Việt Nam", spec=1.4, weight=1.1,
