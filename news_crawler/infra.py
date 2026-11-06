@@ -84,7 +84,54 @@ PROVINCES = [
     ("cm", "Cà Mau", "dbscl", ["Bạc Liêu"], ["Năm Căn", "Hòn Khoai"]),
     ("ag", "An Giang", "dbscl", ["Kiên Giang"], ["Phú Quốc", "Rạch Giá", "Long Xuyên", "Châu Đốc", "Hà Tiên"]),
 ]
+# Bóc tách tỉnh/thành sau sáp nhập thành các địa bàn cũ: (id, tên, địa danh nhận diện)
+SUBAREAS = {
+    "hcm": [
+        ("hcm_cu", "TP.HCM cũ", ["Sài Gòn", "Cần Giờ", "Thủ Thiêm", "Thủ Đức", "Củ Chi", "Nhà Bè", "Tân Sơn Nhất",
+                                "Bến Thành", "Hóc Môn", "Bình Chánh", "Suối Tiên", "Gò Vấp", "Bình Thạnh", "Tân Bình",
+                                "Tân Phú", "Phú Nhuận", "Bình Tân", "Phú Mỹ Hưng", "Cát Lái", "Hiệp Phước", "Tân Thuận",
+                                "Rạch Chiếc", "An Phú", "Bình Quới", "Thanh Đa", "Bà Điểm", "Tân Kiên", "Long Trường",
+                                "Lương Định Của", "Tham Lương", "Linh Trung", "Hiệp Bình", "Nam Sài Gòn", "Chợ Lớn",
+                                "Bình Khánh", "Cần Thạnh", "Thạnh An", "Long Phước", "Vĩnh Lộc", "Bình Hưng",
+                                "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 10",
+                                "Quận 11", "Quận 12", "quận 7", "quận 8", "quận 12", "Nguyễn Huệ", "Bạch Đằng",
+                                "Võ Văn Kiệt", "Nguyễn Văn Linh", "Xuyên Á", "Kinh Dương Vương", "metro số 1",
+                                "Metro số 1", "metro số 2", "Metro số 2", "Ho Chi Minh City", "HCMC", "Phạm Văn Đồng", "Phước Long",
+                                "rạch Ông Bé", "khu đông", "Khu Đông", "cửa ngõ tây bắc", "Cửa ngõ tây bắc",
+                                "Lotte Eco Smart City", "Thu Thiem", "Can Gio", "Thu Duc", "Tan Son Nhat",
+                                "đi miền Tây", "Bến Thành - Tham Lương", "Ben Thanh"]
+         + [f"{a}{d}{b}" for a in ("TP.HCM", "TPHCM", "TP HCM", "TP. HCM") for d in (" - ", " – ", "-")
+            for b in ("Mộc Bài", "Long Thành", "Trung Lương")]),
+        ("hcm_bd", "Bình Dương cũ", ["Bình Dương", "Thủ Dầu Một", "Dĩ An", "Bến Cát", "Thuận An", "Bàu Bàng",
+                                     "Tân Uyên", "Dầu Tiếng", "Phú Giáo", "Mỹ Phước", "Lai Uyên", "Chánh Phú Hòa",
+                                     "Vĩnh Tân", "Bình Mỹ", "Thới Hòa", "Lái Thiêu", "An Thạnh", "Thường Tân",
+                                     "Bình An", "VSIP Bình Dương", "Mỹ Phước - Tân Vạn", "Bắc Tân Uyên",
+                                     "Sóng Thần", "Tân Vạn", "Binh Duong", "Thu Dau Mot", "Di An", "Ben Cat"]),
+        ("hcm_vt", "Bà Rịa – Vũng Tàu cũ", ["Bà Rịa - Vũng Tàu", "Bà Rịa-Vũng Tàu", "Bà Rịa – Vũng Tàu", "Vũng Tàu",
+                                           "Bà Rịa", "Côn Đảo", "Cái Mép", "Thị Vải", "Phú Mỹ", "Hồ Tràm", "Châu Đức",
+                                           "Bình Giã", "Long Sơn", "Xuyên Mộc", "Long Điền", "Đất Đỏ", "Long Hải",
+                                           "Bàu Lâm", "Ngãi Giao", "Kim Long", "Cù Lao Phú Mỹ", "Gò Găng", "Bến Đình",
+                                           "Hòa Hiệp", "Bình Châu", "Phước Hải", "Tân Thành", "Long Hương", "Mỹ Xuân",
+                                           "hóa dầu miền Nam", "Hóa dầu miền Nam", "Tổ hợp hóa dầu", "tổ hợp hóa dầu",
+                                           "Vung Tau", "Ba Ria", "Cai Mep", "Con Dao", "Long Son", "Ho Tram"]),
+    ],
+}
+SUB_OTHER = "Toàn thành phố / chưa rõ khu vực"
 PROV = {p[0]: p for p in PROVINCES}
+
+
+def _sub_matchers():
+    out = {}
+    for pid, subs in SUBAREAS.items():
+        out[pid] = [(sid, re.compile(r"(?<![\w])(?:" + "|".join(re.escape(n) for n in sorted(set(al), key=len, reverse=True))
+                                      + r")(?![\w])")) for sid, _, al in subs]
+    return out
+
+
+def subareas_of(pid, title):
+    """Địa bàn cũ của tin trong tỉnh pid; [] nếu tiêu đề chỉ nhắc tên chung."""
+    t = title.replace("Phú Mỹ Hưng", "PMH Quận 7")  # tránh nhầm với Phú Mỹ (Bà Rịa – Vũng Tàu)
+    return [sid for sid, rx in _SUBM.get(pid, []) if rx.search(t)]
 
 # Từ khóa nhận diện tin hạ tầng / đầu tư xây dựng (so trên tiêu đề viết thường)
 INFRA = re.compile(
@@ -120,6 +167,11 @@ _MONEY_EN = re.compile(r"(?:US)?\$\s?(\d+(?:\.\d+)?)\s*(billion|bn|million|mn)\b
                        r"VND\s?(\d+(?:\.\d+)?)\s*(trillion|billion)\b", re.I)
 
 
+# "cao tốc nối Hồ Tràm với siêu sân bay 16 tỷ USD": số tiền là của sân bay, không phải của tuyến đường
+_OTHER_OBJ = re.compile(r"(?:nối|kết nối|với|gần|cạnh|sát|tới|đến|vào)\s+(?:\S+\s+){0,3}['\"‘“]?(?:siêu\s+)?"
+                        r"(?:sân bay|dự án|cảng|khu)[^,;:]{0,25}$", re.I)
+
+
 def _num(s):
     if re.fullmatch(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?", s):
         s = s.replace(".", "").replace(",", ".")
@@ -137,6 +189,8 @@ def capital(text):
         return None
     best = None
     for m in _MONEY.finditer(text):
+        if _OTHER_OBJ.search(text[:m.start()]):
+            continue
         v = _num(m.group(1))
         if v is None:
             continue
@@ -173,7 +227,14 @@ _AMBIG_ASCII = {"Hue", "Vinh", "Hoa Binh", "Thai Binh", "Long An", "An Giang", "
 def _matchers():
     out = []
     for pid, name, _reg, old, places in PROVINCES:
-        names = [name] + old + places
+        names = [name] + old + places + [n for _, _, al in SUBAREAS.get(pid, []) for n in al
+                                         if len(n) > 6 and not n.startswith(("Quận", "quận", "An Phú", "Bình An",
+                                                                             "Tân Phú", "Kim Long", "Tân Thành",
+                                                                             "Bình Mỹ", "An Thạnh", "Bình Châu",
+                                                                             "Vĩnh Tân", "Hòa Hiệp", "Bình Khánh",
+                                                                             "Long Phước", "Bình Hưng", "Thạnh An",
+                                                                             "Bạch Đằng", "Nguyễn Huệ", "Becamex",
+                                                                             "Long Hương", "Bình Tân", "Tân Bình"))]
         if pid == "hcm":
             names = names[1:]  # "TP.HCM" đã có trong places với nhiều biến thể
         for n in list(names):
@@ -187,6 +248,7 @@ def _matchers():
 
 
 _MATCH = _matchers()
+_SUBM = None  # gán sau khi định nghĩa
 _PACIFIC = re.compile(r"Thái Bình Dương|Thai Binh Duong")
 _COMPARE = re.compile(r"(?:lần|hơn|như|bằng|ngang)\s+(?:sân bay\s+|thủy điện\s+|cảng\s+)?(?:Nội Bài|Tân Sơn Nhất|Hòa Bình|"
                       r"Cái Mép|Thủ Thiêm)|cách\s+(?:trung tâm\s+)?(?:Thủ đô\s+|thủ đô\s+)?(?:Hà Nội|TP\.?\s?HCM|"
@@ -198,6 +260,9 @@ def provinces_of(title):
     t = _COMPARE.sub(" ", t)
     t = re.sub(r"Hòa Bình(?= (?:và|cho|thế giới|Trung Đông|Ukraine))", " ", t)
     return [pid for pid, rx in _MATCH if rx.search(t)]
+
+
+_SUBM = _sub_matchers()
 
 
 def _queries():
@@ -218,6 +283,11 @@ def _queries():
             if n.startswith(("TP", "Thành phố", "thành phố", "Thủ đô", "HCMC", "Ho Chi")):
                 continue
             out.append((f'"{n}" dự án', pid))
+    for n in ["Thủ Dầu Một", "Dĩ An", "Bến Cát", "Tân Uyên", "Thuận An", "Bàu Bàng", "Becamex", "Vũng Tàu", "Bà Rịa",
+              "Cái Mép", "Phú Mỹ", "Côn Đảo", "Long Sơn", "Hồ Tràm", "Xuyên Mộc", "Châu Đức", "Cần Giờ", "Thủ Đức",
+              "Thủ Thiêm", "Củ Chi", "Bình Chánh", "Nhà Bè", "Hóc Môn"]:
+        for t in ['"{n}" dự án', '"{n}" hạ tầng OR khởi công OR cao tốc OR cầu OR cảng']:
+            out.append((t.format(n=n), "hcm"))
     for q in ["khởi công dự án giao thông", "thông xe cao tốc", "đường sắt tốc độ cao Bắc Nam",
               "đường sắt Lào Cai Hà Nội Hải Phòng", "cao tốc Bắc Nam phía Đông", "sân bay Long Thành",
               "giải ngân vốn đầu tư công", "khu công nghiệp mới được phê duyệt", "cảng biển nước sâu",
@@ -344,9 +414,36 @@ _STOP = set("dự án tỷ đồng nghìn triệu usd vốn đầu tư hơn gầ
 
 
 def _similar(a, b):
-    ta = {w for w in _uni(a["title"]) if w not in _STOP and not w.isdigit()}
-    tb = {w for w in _uni(b["title"]) if w not in _STOP and not w.isdigit()}
+    ta = {_ascii(w) for w in _uni(a["title"]) if w not in _STOP and not w.isdigit()}
+    tb = {_ascii(w) for w in _uni(b["title"]) if w not in _STOP and not w.isdigit()}
     return len(ta & tb) >= 2
+
+
+def _add_cap(caps, e, share):
+    """Một dự án được nhiều tin nhắc (900.000 tỷ / "hơn 1 triệu tỷ") chỉ tính một lần."""
+    if e["cap"] and not any(0.85 <= e["cap"] / ev["cap"] <= 1.18 and _similar(e, ev) for _, ev in caps.values()):
+        caps[len(caps)] = (e["cap"] * share, e)
+
+
+def split_subareas(p):
+    subs = SUBAREAS.get(p["id"])
+    if not subs:
+        return []
+    rows = {sid: dict(id=sid, name=name, events=[], caps={}, ms=0) for sid, name, _ in subs}
+    rows["_other"] = dict(id=p["id"] + "_other", name=SUB_OTHER, events=[], caps={}, ms=0)
+    for e in p["events"]:
+        ss = subareas_of(p["id"], e["title"]) or ["_other"]
+        for sid in ss:
+            r = rows[sid]
+            r["events"].append(e)
+            r["ms"] += e["milestone"]
+            _add_cap(r["caps"], e, 1 / len(e["provs"]) / len(ss))
+    out = list(rows.values())
+    for r in out:
+        r["n"] = len(r["events"])
+        r["cap"] = sum(v for v, _ in r["caps"].values())
+        r["top"] = sorted(r["caps"].values(), key=lambda x: -x[0])[:5]
+    return out
 
 
 def score(events):
@@ -357,16 +454,13 @@ def score(events):
             p = prov[pid]
             p["events"].append(e)
             p["ms"] += e["milestone"]
-            # một dự án được nhiều tin nhắc (900.000 tỷ / "hơn 1 triệu tỷ") chỉ tính một lần;
-            # dự án liên tỉnh chia đều vốn cho các tỉnh nhắc tới
-            if e["cap"] and not any(0.85 <= e["cap"] / ev["cap"] <= 1.18 and _similar(e, ev)
-                                    for _, ev in p["caps"].values()):
-                p["caps"][len(p["caps"])] = (e["cap"] / len(e["provs"]), e)
+            _add_cap(p["caps"], e, 1 / len(e["provs"]))  # dự án liên tỉnh: chia đều vốn cho các tỉnh
     rows = list(prov.values())
     for p in rows:
         p["n"] = len(p["events"])
         p["cap"] = sum(v for v, _ in p["caps"].values())
         p["top"] = sorted(p["caps"].values(), key=lambda x: -x[0])[:5]
+        p["subs"] = split_subareas(p)
     mx_n = max(p["n"] for p in rows) or 1
     mx_c = max(math.log1p(p["cap"]) for p in rows) or 1
     mx_m = max(p["ms"] for p in rows) or 1
@@ -429,7 +523,7 @@ details ol{margin:0;padding:0 14px 12px 34px}details li{margin:6px 0}
 .cap.agg{background:none;border:1px dashed var(--mut);color:var(--mut)}
 .ms{font-size:11px;border:1px solid var(--acc);color:var(--acc);border-radius:4px;padding:0 4px}
 .b{color:var(--mut);font-size:13px}.notes p,.notes li{margin:6px 0}
-.tw{overflow-x:auto}
+.tw{overflow-x:auto}tr.sub td{font-size:13px;color:var(--mut);background:var(--bg);padding-top:4px;padding-bottom:4px}
 @media (max-width:640px){.hide-s{display:none}th,td{padding:6px 5px;font-size:13px}}
 """
 
@@ -437,10 +531,30 @@ details ol{margin:0;padding:0 14px 12px 34px}details li{margin:6px 0}
 JS = """
 document.querySelectorAll('table.st').forEach(t=>{const hs=[...t.rows[0].cells];
 hs.forEach((h,i)=>{if(i<2)return;h.style.cursor='pointer';h.title='Bấm để sắp xếp';h.onclick=()=>{
-const rs=[...t.rows].slice(1);const v=r=>{const c=r.cells[i];return parseFloat(c.dataset.v??c.textContent)||0};
-rs.sort((a,b)=>v(b)-v(a));rs.forEach((r,k)=>{r.cells[0].textContent=k+1;t.tBodies[0].appendChild(r)});
+const rs=[...t.rows].slice(1).filter(r=>!r.classList.contains('sub'));const subs=[...t.querySelectorAll('tr.sub')];const v=r=>{const c=r.cells[i];return parseFloat(c.dataset.v??c.textContent)||0};
+rs.sort((a,b)=>v(b)-v(a));rs.forEach((r,k)=>{r.cells[0].textContent=k+1;t.tBodies[0].appendChild(r);
+subs.filter(x=>x.dataset.parent===r.dataset.id).forEach(x=>t.tBodies[0].appendChild(x))});
 hs.forEach(x=>x.style.textDecoration='');h.style.textDecoration='underline'}})});
 """
+
+
+def _ev_list(events, limit):
+    e = html.escape
+    out = ["<ol>"]
+    evs = sorted(events, key=lambda x: (-x["milestone"] - x["n"] / 10, -x["ts"]))
+    for ev in evs[:limit]:
+        extra = "".join(f" · <a href='{e(u)}'>{e(s)}</a>" for s, u in ev["others"][:2])
+        capb = (f" <span class=cap>{fmt_cap(ev['cap'])}</span>" if ev["cap"] else
+                f" <span class='cap agg' title='Số tổng hợp, lũy kế hoặc kế hoạch: không cộng vào vốn dự án'>"
+                f"Σ {fmt_cap(ev['agg'])}</span>" if ev.get("agg") else "")
+        msb = " <span class=ms>mốc</span>" if ev["milestone"] else ""
+        bl = f"<div class=b>{e(ev['bullet'][:220])}</div>" if ev["bullet"] else ""
+        out.append(f"<li><a href='{e(ev['url'])}'>{e(ev['title'])}</a>{capb}{msb}"
+                   f"<div class=mut>{e(ev['source'])} · {_d(ev['ts'])}{extra}</div>{bl}</li>")
+    if len(evs) > limit:
+        out.append(f"<li class=mut>… và {len(evs) - limit} tin khác</li>")
+    out.append("</ol>")
+    return "\n".join(out)
 
 
 def render(rows, regs, events, days, now, n_queries, notes_html=""):
@@ -471,10 +585,14 @@ def render(rows, regs, events, days, now, n_queries, notes_html=""):
         old = PROV[p["id"]][3]
         sub = (" (gồm " + ", ".join(old) + ")") if old else ""
         sub = re.sub(r", Bà Rịa-Vũng Tàu, Bà Rịa – Vũng Tàu|, Bắc Cạn|, Thừa Thiên - Huế", "", sub)
-        out.append(f"<tr><td class=rk>{i}</td><td><a href='#p-{p['id']}'><b>{e(p['name'])}</b></a>"
+        out.append(f"<tr data-id='{p['id']}'><td class=rk>{i}</td><td><a href='#p-{p['id']}'><b>{e(p['name'])}</b></a>"
                    f"<div class=reg>{e(REGION_NAME[p['region']])}{e(sub)}</div></td><td class=n data-v={p['n']}>{p['n']}</td>"
                    f"<td class=n data-v={p['cap']:.0f}>{fmt_cap(p['cap'])}</td><td class='n hide-s'>{p['ms']}</td>"
                    f"<td style='min-width:90px'>{p['score']}<div class=bar style='width:{100 * p['score'] / mx:.0f}%'></div></td></tr>")
+        for r in p["subs"]:
+            out.append(f"<tr class=sub data-parent='{p['id']}'><td></td><td>↳ <a href='#s-{r['id']}'>{e(r['name'])}</a></td>"
+                       f"<td class=n>{r['n']}</td><td class=n>{fmt_cap(r['cap'])}</td>"
+                       f"<td class='n hide-s'>{r['ms']}</td><td></td></tr>")
     out.append("</table></div>")
     out.append("<p class=mut>Điểm = 45% số sự kiện + 40% tổng vốn (thang log) + 15% số mốc khởi công, thông xe, phê duyệt, "
                "chọn nhà đầu tư; quy về thang 100 theo tỉnh dẫn đầu. Vốn là con số nêu trong tiêu đề hoặc tóm tắt tin; "
@@ -489,20 +607,23 @@ def render(rows, regs, events, days, now, n_queries, notes_html=""):
             out.append("<div style='padding:0 14px' class=b>Dự án vốn lớn nhất: " + "; ".join(
                 f"<a href='{e(ev['url'])}'>{e(ev['title'][:90])}</a> <span class=cap>{fmt_cap(ev['cap'])}</span>"
                 for _, ev in p["top"][:3]) + "</div>")
-        out.append("<ol>")
-        evs = sorted(p["events"], key=lambda x: (-(x["cap"] or 0) * 0 - x["milestone"] - x["n"] / 10, -x["ts"]))
-        for ev in evs[:60]:
-            extra = "".join(f" · <a href='{e(u)}'>{e(s)}</a>" for s, u in ev["others"][:2])
-            capb = (f" <span class=cap>{fmt_cap(ev['cap'])}</span>" if ev["cap"] else
-                    f" <span class='cap agg' title='Số tổng hợp, lũy kế hoặc kế hoạch: không cộng vào vốn dự án'>"
-                    f"Σ {fmt_cap(ev['agg'])}</span>" if ev.get("agg") else "")
-            msb = " <span class=ms>mốc</span>" if ev["milestone"] else ""
-            bl = f"<div class=b>{e(ev['bullet'][:220])}</div>" if ev["bullet"] else ""
-            out.append(f"<li><a href='{e(ev['url'])}'>{e(ev['title'])}</a>{capb}{msb}"
-                       f"<div class=mut>{e(ev['source'])} · {_d(ev['ts'])}{extra}</div>{bl}</li>")
-        if len(evs) > 60:
-            out.append(f"<li class=mut>… và {len(evs) - 60} tin khác</li>")
-        out.append("</ol></details>")
+        if p["subs"]:
+            out.append("<div class=tw style='padding:8px 14px'><table><tr><th>Khu vực</th><th class=n>Sự kiện</th>"
+                       "<th class=n>Vốn nêu trong tin</th><th class='n hide-s'>Mốc</th></tr>" + "".join(
+                           f"<tr><td><a href='#s-{r['id']}'>{e(r['name'])}</a></td><td class=n>{r['n']}</td>"
+                           f"<td class=n>{fmt_cap(r['cap'])}</td><td class='n hide-s'>{r['ms']}</td></tr>"
+                           for r in p["subs"]) + "</table></div>")
+            for r in p["subs"]:
+                out.append(f"<h3 id='s-{r['id']}' style='padding:10px 14px 0'>{e(r['name'])} "
+                           f"<span class=mut>· {r['n']} sự kiện · vốn {fmt_cap(r['cap'])}</span></h3>")
+                if r["top"]:
+                    out.append("<div style='padding:0 14px' class=b>Vốn lớn nhất: " + "; ".join(
+                        f"<a href='{e(ev['url'])}'>{e(ev['title'][:90])}</a> <span class=cap>{fmt_cap(ev['cap'])}</span>"
+                        for _, ev in r["top"][:3]) + "</div>")
+                out.append(_ev_list(r["events"], 40) + "")
+        else:
+            out.append(_ev_list(p["events"], 60))
+        out.append("</details>")
     out.append("</main><script>" + JS + "</script>")
     return "\n".join(out)
 
@@ -535,7 +656,9 @@ def main(argv=None):
     with open(o.out, "w", encoding="utf-8") as fh:
         fh.write(render(rows, regs, events, o.days, now, nq, notes))
     if o.json:
-        slim = [dict({k: v for k, v in p.items() if k not in ("events", "caps", "top")},
+        slim = [dict({k: v for k, v in p.items() if k not in ("events", "caps", "top", "subs")},
+                     subs=[dict(id=r["id"], name=r["name"], n=r["n"], cap=r["cap"], ms=r["ms"],
+                                top=[(v, ev["title"]) for v, ev in r["top"]]) for r in p.get("subs", [])],
                      top=[(v, ev["title"], ev["url"]) for v, ev in p["top"]],
                      events=[{k: ev[k] for k in ("title", "url", "source", "ts", "cap", "agg", "milestone", "provs", "n")}
                              for ev in p["events"]]) for p in rows]
