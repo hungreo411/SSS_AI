@@ -210,7 +210,7 @@ LEVEL_RULES = [
     (4, r"Bộ Chính trị|Ban Bí thư|Quân ủy Trung ương|Hội nghị toàn quốc|hội đàm|thăm chính thức|Quốc hội|kỷ niệm \d+ năm|"
         r"bài viết|họp báo|trả lời phỏng vấn|tổng kết|" + _BIG_COUNTRY),
     (3, r"làm việc|kiểm tra|dự lễ|Lễ|khởi công|khánh thành|hội kiến|tiếp|gặp|phát biểu|chỉ đạo|Hội nghị|Đại hội|chủ trì"),
-    (2, r"thư|điện mừng|chúc mừng|thăm hỏi|chia buồn|dâng hương|viếng|tặng|trao"),
+    (2, r"gửi thư|(?<!Bí )\b[Tt]hư (?:chúc|gửi|của|nhân)|điện mừng|chúc mừng|thăm hỏi|chia buồn|dâng hương|viếng|tặng|trao"),
 ]
 _LV = [(lv, re.compile(rx)) for lv, rx in LEVEL_RULES]
 TYPES = [
@@ -221,8 +221,11 @@ TYPES = [
      r"Tổng thống|Thủ tướng (?!Lê Minh Hưng|Phạm Minh Chính|Chính phủ)|kiều bào|Đại sứ quán|Liên hợp quốc|ASEAN|APEC"),
     ("hoi_nghi", "Hội nghị Đảng, Quốc hội, Chính phủ", r"Hội nghị|Bộ Chính trị|Ban Bí thư|Trung ương|Quân ủy|Quốc hội|kỳ họp|phiên|Đại hội|Chính phủ"),
     ("dia_phuong", "Làm việc với địa phương, bộ ngành, kiểm tra", r"làm việc|kiểm tra|về thăm|thăm (?!chính thức|cấp nhà nước)|khảo sát"),
+    ("phat_bieu", "Phát biểu, chỉ đạo (tiêu đề trích lời)",
+     r"(?:Tổng Bí thư|Chủ tịch nước|Tô Lâm)[^:]{0,30}:|phát biểu|chỉ đạo|nhấn mạnh|yêu cầu|đề nghị|khẳng định|kêu gọi|Toàn văn"),
     ("nghi_le", "Lễ kỷ niệm, khởi công, nghi lễ", r"Lễ|lễ|kỷ niệm|dâng hương|viếng|đặt vòng hoa|khởi công|khánh thành|trao|gắn biển"),
-    ("thu_dien", "Thư, điện mừng, chúc mừng", r"gửi thư|thư |điện mừng|chúc mừng|thư chúc|chia buồn|điện chia buồn"),
+    ("thu_dien", "Thư, điện mừng, chúc mừng", r"gửi thư|(?<!Bí )\b[Tt]hư (?:chúc|gửi|của|nhân|cảm ơn)|điện mừng|chúc mừng|"
+                                              r"chia buồn|gửi điện"),
 ]
 _TY = [(tid, lab, re.compile(rx)) for tid, lab, rx in TYPES]
 
@@ -327,6 +330,14 @@ def analyze(rows, sel, bodies, start, split, end):
         q = [a["title"].split(":", 1)[1].strip() for a in ev["arts"] if ":" in a["title"] and a["headline"]
              and re.search(r"Tổng Bí thư|Tô Lâm|Chủ tịch nước", a["title"].split(":")[0])]
         ev["quote"] = max(q, key=len) if q else ""
+        # câu trích dẫn ứng viên: tiêu đề trích lời + câu ngắn trong lời phát biểu
+        cand = [(1, x) for x in q]
+        for a in ev["arts"]:
+            for snt in re.split(r"(?<=[.!?…”\"])\s+(?=[A-ZĐ“\"])", a["speech"]):
+                snt = snt.strip()
+                if 50 <= len(snt) <= 260 and not re.search(r"Ảnh:|TTXVN|Kính thưa|Thưa các", snt):
+                    cand.append((0, snt))
+        ev["qs"] = cand
         del ev["u"]
     months = _months(start, end)
     tot_m = Counter(_month(r["ts"]) for r in rows)
@@ -368,7 +379,7 @@ def analyze(rows, sel, bodies, start, split, end):
             words = sum(e["words"] for e in sp) or 1
             th[tid] = dict(share=len(hit) / max(1, len(sp)), hits=sum(e["themes"][tid] for e in hit) * 1000 / words,
                            wshare=sum(e["level"] for e in hit) / wsum, n=len(hit),
-                           quotes=[e for e in sorted(hit, key=lambda e: (-e["level"], -e["n"])) if e["quote"]][:4])
+                           quotes=_theme_quotes(hit, tid))
         P[p] = dict(months=nm, days=ndays, arts=len(pa), tot=tot, headline=sum(x["headline"] for x in pa),
                     ctrl={cid: sum(ctrl[cid][_month(r["ts"])] for r in []) for cid in ctrl},
                     events=len(pe), speech=len(sp), big=sum(e["level"] >= 4 for e in pe),
@@ -380,6 +391,24 @@ def analyze(rows, sel, bodies, start, split, end):
                         for cid in ctrl}
     major = major_events(rows, arts, ts_start, ts_split, ts_end)
     return dict(arts=arts, events=evs, monthly=monthly, P=P, major=major, cdt=cdt, CTRL=CTRL)
+
+
+_THRX = {tid: re.compile(rx) for tid, _, rx in THEMES}
+
+
+def _theme_quotes(events, tid, k=4):
+    """Câu trích tiêu biểu cho một thông điệp: ưu tiên tiêu đề trích lời, sự kiện cấp cao; câu phải chứa từ khóa thông điệp."""
+    rx, out, seen = _THRX[tid], [], set()
+    for prio in (1, 0):
+        for e in sorted(events, key=lambda e: (-e["level"], -e["n"])):
+            for pr, qt in e["qs"]:
+                if pr == prio and rx.search(qt.lower()) and qt[:40] not in seen:
+                    seen.add(qt[:40])
+                    out.append(dict(e, quote=qt.strip(" '\"“”")))
+                    break
+            if len(out) >= k:
+                return out
+    return out
 
 
 def major_events(rows, arts, ts_start, ts_split, ts_end):
