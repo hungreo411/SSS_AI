@@ -163,6 +163,33 @@ THEMES = [
      r"trung tâm tài chính|thị trường (?:vốn|chứng khoán|tài chính)|ngân sách|huy động vốn|nguồn lực tài chính|tín dụng|trái phiếu"),
 ]
 _TH = [(tid, lab, re.compile(rx)) for tid, lab, rx in THEMES]
+
+# Cụm từ/khẩu hiệu đặc trưng — đếm đúng nguyên văn trong lời phát biểu
+PHRASES = [
+    ("kn_vuon_minh", "kỷ nguyên vươn mình", r"kỷ nguyên vươn mình"),
+    ("vuon_minh", "vươn mình (mọi cách nói)", r"vươn mình"),
+    ("kn_moi", "kỷ nguyên mới", r"kỷ nguyên mới"),
+    ("kn_phat_trien", "kỷ nguyên phát triển", r"kỷ nguyên phát triển"),
+    ("khat_vong", "khát vọng", r"khát vọng"),
+    ("hung_cuong", "hùng cường / thịnh vượng", r"hùng cường|thịnh vượng"),
+    ("hai_con_so", "tăng trưởng hai con số", r"hai con số"),
+    ("but_pha", "bứt phá", r"bứt phá"),
+    ("diem_nghen", "điểm nghẽn", r"điểm nghẽn"),
+    ("the_che", "thể chế", r"thể chế"),
+    ("tinh_gon", "tinh gọn (bộ máy)", r"tinh gọn"),
+    ("hai_cap", "chính quyền hai cấp", r"chính quyền (?:địa phương )?(?:hai|2) cấp"),
+    ("noi_di_doi", "nói đi đôi với làm", r"nói đi đôi với làm"),
+    ("thuc_chat", "thực chất", r"thực chất"),
+    ("dan_la_goc", "dân là gốc / lấy dân làm gốc", r"dân là gốc|lấy dân làm gốc"),
+    ("khong_bo_lai", "không để ai bị bỏ lại phía sau", r"không để ai bị bỏ lại"),
+    ("tu_chu_cl", "tự chủ chiến lược", r"tự chủ chiến lược"),
+    ("chuyen_doi_so", "chuyển đổi số", r"chuyển đổi số"),
+    ("ktcn_dmst", "đổi mới sáng tạo", r"đổi mới sáng tạo"),
+    ("kt_tu_nhan", "kinh tế tư nhân", r"kinh tế tư nhân"),
+    ("lang_phi", "lãng phí", r"lãng phí"),
+    ("tham_nhung", "tham nhũng", r"tham nhũng"),
+]
+_PH = [(pid, lab, re.compile(rx)) for pid, lab, rx in PHRASES]
 _SPEECH_VERB = re.compile(r"nhấn mạnh|yêu cầu|chỉ đạo|khẳng định|đề nghị|lưu ý|nêu rõ|chỉ rõ|cho rằng|phát biểu|nhắc|kêu gọi|"
                           r"chia sẻ|mong muốn|gợi mở|đặt vấn đề|định hướng|đánh giá|nhận định|nói|cho biết|nhấn|đề cập|phân tích")
 
@@ -174,9 +201,10 @@ def speech_text(title, paras, cdt_from_ts, ts):
     if ts >= cdt_from_ts:
         subj += r"|Chủ tịch nước"
     rs = re.compile(r"(?:" + subj + r")")
-    if re.match(r"(?:Toàn văn|Phát biểu|Bài phát biểu|Bài viết|Diễn văn|Phát biểu kết luận|Phát biểu bế mạc|Phát biểu khai mạc)\b", title) \
-            or any("toàn văn" in p.lower() for p in paras[:2]):
-        return " ".join(paras)  # cả bài là lời của lãnh đạo
+    m = re.search(r"(?:Toàn văn|toàn văn|Phát biểu|phát biểu|Diễn văn|diễn văn|Bài viết|bài viết)[^:]{0,60}?của\s+(?:đồng chí\s+)?"
+                  r"(Tổng Bí thư(?:, Chủ tịch nước)?(?: Tô Lâm)?|Tô Lâm)", title)
+    if m and not re.search(r"Lào|Trung Quốc|Cuba|Thongloun|Tập Cận Bình", title[m.end():m.end() + 30]):
+        return " ".join(paras)  # cả bài là lời của lãnh đạo (toàn văn phát biểu/bài viết của ông)
     out = []
     if ":" in title and rs.search(title.split(":")[0]):
         out.append(title.split(":", 1)[1])
@@ -326,6 +354,9 @@ def analyze(rows, sel, bodies, start, split, end):
         th = themes_of(sp) if ev["speech"] else {}
         ev["themes"] = th
         ev["words"] = len(sp.split()) if ev["speech"] else 0
+        best = max((a["speech"] for a in ev["arts"]), key=len).lower()
+        ev["wmax"] = len(best.split())
+        ev["phr"] = {pid: len(rx.findall(best)) for pid, _, rx in _PH if rx.search(best)}
         ev["per"] = per(ev["ts"])
         q = [a["title"].split(":", 1)[1].strip() for a in ev["arts"] if ":" in a["title"] and a["headline"]
              and re.search(r"Tổng Bí thư|Tô Lâm|Chủ tịch nước", a["title"].split(":")[0])]
@@ -389,6 +420,21 @@ def analyze(rows, sel, bodies, start, split, end):
                     top=sorted(pe, key=lambda e: (-e["level"], -e["n"], -e["ts"]))[:30])
         P[p]["ctrl"] = {cid: sum(v for mm, v in ctrl[cid].items() if a <= datetime.fromisoformat(mm + "-15").replace(tzinfo=VN_TZ).timestamp() < b)
                         for cid in ctrl}
+    for m in monthly:
+        mev = [e for e in evs if _month(e["ts"]) == m["month"]]
+        m["wmax"] = sum(e["wmax"] for e in mev)
+        m["phr"] = {pid: sum(e["phr"].get(pid, 0) for e in mev) for pid, _, _ in PHRASES}
+    for p, a, b in (("P1", ts_start, ts_split), ("P2", ts_split, ts_end)):
+        pe = [e for e in evs if a <= e["ts"] < b]
+        words = sum(e["wmax"] for e in pe) or 1
+        P[p]["words"] = words
+        P[p]["phrases"] = {}
+        for pid, _, _ in PHRASES:
+            hit = [e for e in pe if pid in e["phr"]]
+            n = sum(e["phr"][pid] for e in hit)
+            last = max(hit, key=lambda e: e["ts"]) if hit else None
+            P[p]["phrases"][pid] = dict(n=n, events=len(hit), rate=n * 100000 / words,
+                                        last=(last["ts"], last["title"], last["url"]) if last else None)
     major = major_events(rows, arts, ts_start, ts_split, ts_end)
     return dict(arts=arts, events=evs, monthly=monthly, P=P, major=major, cdt=cdt, CTRL=CTRL)
 
@@ -553,7 +599,25 @@ def render(res, start, split, end, notes=""):
                    f"<td class=n>{m['n']}</td><td>{st}{smp}</td></tr>")
     out.append("</table></div>")
 
-    out.append("<h2>3. Các thông điệp chính và độ nhấn mạnh</h2>")
+    out.append("<h2>3. Cụm từ đặc trưng: nguyên văn được nhắc bao nhiêu lần</h2>")
+    out.append(f"<p class=mut>Đếm đúng nguyên văn trong lời phát biểu của ông (mỗi sự kiện tính một lần, lấy bản đầy đủ nhất). "
+               f"Tần suất quy về số lần trên 100.000 từ phát biểu để so sánh công bằng: GĐ1 có {_f(P1['words'], 0)} từ, "
+               f"GĐ2 có {_f(P2['words'], 0)} từ.</p>")
+    out.append("<div class=tw><table><tr><th>Cụm từ</th><th class=n>GĐ1</th><th class=n>GĐ2</th><th class=n>Thay đổi</th>"
+               "<th class=hide-s>Theo tháng</th><th class=hide-s>Lần gần nhất</th></tr>")
+    pinned = ("kn_vuon_minh", "vuon_minh")  # khẩu hiệu chủ đạo: luôn đứng đầu bảng
+    for pid, lab, _ in sorted(PHRASES, key=lambda x: (x[0] not in pinned, pinned.index(x[0]) if x[0] in pinned else 0,
+                                                      -(P1["phrases"][x[0]]["rate"] + P2["phrases"][x[0]]["rate"]))):
+        a, b = P1["phrases"][pid], P2["phrases"][pid]
+        hl = " style='background:var(--hi)'" if pid in pinned else ""
+        sp = _spark([m["phr"][pid] * 100000 / max(1, m["wmax"]) for m in res["monthly"]])
+        last = b["last"] or a["last"]
+        lst = f"{d(last[0])} · <a href='{e(last[2])}'>{e(last[1][:60])}</a>" if last else "–"
+        out.append(f"<tr{hl}><td><b>{e(lab)}</b></td><td class=n>{a['n']} lần<div class=mut>{_f(a['rate'], 1)}/100k từ</div></td>"
+                   f"<td class=n>{b['n']} lần<div class=mut>{_f(b['rate'], 1)}/100k từ</div></td>"
+                   f"<td class=n>{_chg(a['rate'], b['rate'])}</td><td class=hide-s>{sp}</td><td class='hide-s mut'>{lst}</td></tr>")
+    out.append("</table></div>")
+    out.append("<h2>4. Các thông điệp chính và độ nhấn mạnh</h2>")
     out.append("<p class=mut>Tỷ trọng = % sự kiện có phát biểu của ông nhắc tới thông điệp (trong tiêu đề trích lời hoặc các câu "
                "\"Tổng Bí thư nhấn mạnh/yêu cầu/chỉ đạo…\" trong bài). Cường độ = số lần lặp từ khóa của thông điệp trên 1.000 từ lời phát biểu. "
                "Sắp xếp theo mức độ quan trọng: tỷ trọng có trọng số theo cấp độ sự kiện, cả năm.</p>")
@@ -580,7 +644,7 @@ def render(res, start, split, end, notes=""):
                 out.append("<div class=q><i>Không có tiêu đề trích lời trực tiếp.</i></div>")
         out.append("</div></details>")
 
-    out.append("<h2>4. Sự kiện quan trọng nhất mỗi giai đoạn</h2>")
+    out.append("<h2>5. Sự kiện quan trọng nhất mỗi giai đoạn</h2>")
     for P, plab in ((P1, p1lab), (P2, p2lab)):
         out.append(f"<h3 style='margin-top:14px'>{plab}</h3><ol>")
         for ev in P["top"]:
