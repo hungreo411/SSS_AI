@@ -66,7 +66,7 @@ def main(argv=None):
     if a.json:
         import json
         keep = ("topic", "sub", "titans", "title", "url", "source", "ts", "bullets", "others", "level", "score",
-                "n_sources", "lang", "tier", "company", "crank")
+                "n_sources", "lang", "tier", "company", "crank", "deal_usd")
         with open(a.json, "w", encoding="utf-8") as f:
             json.dump({"items": [{k: i.get(k) for k in keep} for i in items], "reports": reps, "hours": o.hours,
                        "now": now}, f, ensure_ascii=False)
