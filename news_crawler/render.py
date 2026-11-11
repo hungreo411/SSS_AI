@@ -7,7 +7,8 @@ from datetime import datetime
 from .digest import bullets, cluster
 from .extract import VN_TZ
 from .companies import COMPANIES, find_company
-from .mna import MNA_IDS, assign_mna, deal_bonus
+from .capmkt import CAP_IDS, assign_cap
+from .mna import MNA_IDS, assign_mna, deal_bonus, deal_usd
 from .regions import KB_TITANS, REGION_BY_ID, detect_region, is_vietnam
 from .topics import DISPLAY, OTHER, TOPIC_BY_ID, classify, importance
 
@@ -75,7 +76,8 @@ def build_items(arts, now_ts):
         a["summary"] = " ".join(a["bullets"])
         assign_region(a)
         assign_company(a)
-        assign_mna(a, TOPIC_BY_ID)  # thương vụ M&A ưu tiên hơn mục quốc gia / doanh nghiệp
+        if not assign_mna(a, TOPIC_BY_ID):  # thương vụ M&A ưu tiên hơn mục quốc gia / doanh nghiệp
+            assign_cap(a, TOPIC_BY_ID)  # thị trường vốn VN: huy động vốn, trái phiếu, chào bán, quỹ
     items = []
     for group in cluster(uniq).values():
         group.sort(key=lambda a: (a["via"] == "gnews", not a["paras"], a["tier"], -(len(a["bullets"][1]))))
@@ -90,8 +92,11 @@ def build_items(arts, now_ts):
         mna = next((a for a in group if a["topic"] in MNA_IDS), None)
         if mna and rep["topic"] not in MNA_IDS:
             rep["topic"], rep["sub"], rep["deal_usd"] = mna["topic"], mna.get("sub"), mna.get("deal_usd")
+        cap = next((a for a in group if a["topic"] in CAP_IDS), None)
+        if cap and rep["topic"] not in MNA_IDS + CAP_IDS:
+            rep["topic"], rep["sub"] = cap["topic"], cap.get("sub")
         co = next((a for a in group if a.get("company")), None)
-        if co and not rep.get("company") and rep["topic"] not in MNA_IDS:
+        if co and not rep.get("company") and rep["topic"] not in MNA_IDS + CAP_IDS:
             rep["topic"], rep["company"], rep["crank"], rep["sub"] = co["topic"], co["company"], co["crank"], co.get("sub")
         # tin chỉ có tiêu đề (Google News / báo trả phí): mượn sapo của bài cùng sự kiện nếu có
         if not rep["bullets"][0]:
@@ -108,8 +113,8 @@ def build_items(arts, now_ts):
         if rep["titans"] and rep["level"] < 5:
             rep["score"] += 0.5
             rep["level"], rep["level_label"] = _level(rep["score"])
-        if rep["topic"] in MNA_IDS:
-            rep["deal_usd"] = max((a.get("deal_usd") or 0 for a in group), default=0) or None
+        if rep["topic"] in MNA_IDS + CAP_IDS:
+            rep["deal_usd"] = max((a.get("deal_usd") or deal_usd(a["title"]) or 0 for a in group), default=0) or None
             if deal_bonus(rep["deal_usd"]):
                 rep["score"] += deal_bonus(rep["deal_usd"])
                 rep["level"], rep["level_label"] = _level(rep["score"])
@@ -293,7 +298,7 @@ def _row(it, show_topic=True):
     content = "<ul>" + "".join(f"<li>{_e(b)}</li>" for b in bl) + "</ul>" if bl else \
         '<span class="tag">(Nguồn chỉ cung cấp tiêu đề — mở link để đọc)</span>'
     dots = "●" * it["level"] + "○" * (5 - it["level"])
-    label = t["label"] if it["topic"] in MNA_IDS else (it.get("company") or t["label"])
+    label = t["label"] if it["topic"] in MNA_IDS + CAP_IDS else (it.get("company") or t["label"])
     if it.get("deal_usd"):
         v = it["deal_usd"]
         val = f"~{v / 1000:.1f} tỷ USD".replace(".", ",") if v >= 1000 else f"~{v:.0f} triệu USD"
@@ -322,7 +327,7 @@ def render(items, reports, opts, now_ts, top_n=30):
             by_topic[it["topic"]].append(it)
     for k in ("co_vn", "co_us", "co_cn", "co_eu"):
         by_topic[k].sort(key=lambda r: (r.get("crank", 99), -r["score"], -(r["ts"] or 0)))
-    for k in MNA_IDS:  # thương vụ: mức độ rồi quy mô
+    for k in MNA_IDS + CAP_IDS:  # thương vụ: mức độ rồi quy mô
         by_topic[k].sort(key=lambda r: (-r["level"], -(r.get("deal_usd") or 0), -(r["ts"] or 0)))
     n_src_ok = sum(1 for r in reports if r["status"] == "ok")
     n_arts = sum(r["articles"] for r in reports)

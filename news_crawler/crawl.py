@@ -6,6 +6,7 @@ from urllib.parse import quote_plus, urljoin, urlparse
 
 from . import extract as X
 from .companies import gnews_jobs as company_jobs
+from .capmkt import CAP_QUERIES
 from .mna import MNA_QUERIES
 from .sources import GNEWS_TOPIC_QUERIES, SOURCES
 
@@ -209,7 +210,7 @@ def crawl_gnews(fetcher, opts, sources):
         jobs.append((q, "hl=en-US&gl=US&ceid=US:en", None))
     for q in GNEWS_TOPIC_QUERIES.get("titans", []):
         jobs.append((q, "hl=en-US&gl=US&ceid=US:en", None))
-    for q, lang in MNA_QUERIES:  # thương vụ M&A: Việt Nam, Đông Nam Á, châu Á, châu Âu, châu Mỹ
+    for q, lang in MNA_QUERIES + CAP_QUERIES:  # thương vụ M&A + thị trường vốn VN: Việt Nam, Đông Nam Á, châu Á, châu Âu, châu Mỹ
         jobs.append((q, "hl=vi&gl=VN&ceid=VN:vi" if lang == "vi" else "hl=en-US&gl=US&ceid=US:en", None))
     for s in sources:
         if s.get("gnews_site"):
