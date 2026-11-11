@@ -84,7 +84,8 @@ _MAP = {"r_my": "ma_am", "r_eu": "ma_eu", "r_sg": "ma_sea", "r_tq": "ma_asia", "
 
 
 # tên riêng không dấu kiểu nước ngoài ở đầu tiêu đề tiếng Việt ("Argenx mua lại...", "NTT bán...")
-_FOREIGN_NAME = re.compile(r"^(?:[A-Z][A-Za-z&.\-]+\s?){1,3}(?=\s(?:mua|bán|thâu tóm|sáp nhập|muốn|chi|ký|công bố))")
+_FOREIGN_NAME = re.compile(r"^(?:Cổ phiếu\s+)?(?:[A-Z][A-Za-z&.\-]+\s?){1,3}(?=\s(?:mua|bán|thâu tóm|sáp nhập|muốn|chi|ký|công bố|"
+                           r"tăng|giảm|lên kế hoạch|báo cáo|hoàn tất))")
 _VN_SHORT = re.compile(r"\bViệt\b|người Việt|doanh nghiệp Việt|thương hiệu Việt|hàng Việt")
 
 
@@ -117,10 +118,21 @@ _MONEY = re.compile(r"(?:US)?\$\s?(\d+(?:[.,]\d+)?)\s*(trillion|tn|billion|bn|b\
                     r"(\d+(?:[.,]\d+)?)\s*(tỷ USD|tỷ đô|triệu USD|nghìn tỷ đồng|nghìn tỷ|ngàn tỷ|tỷ đồng|tỷ Yên|tỷ yên)", re.I)
 
 
+_NOT_SIZE = re.compile(r"dư nợ|nợ vay|nợ phải trả|tổng nợ|doanh thu|lợi nhuận|\blãi\b|\blỗ\b|vốn hóa|tài sản|"
+                       r"revenue|profit|loss|debt of|market cap|AUM|assets under", re.I)
+
+
+_AFTER_SIZE = re.compile(r"\s*(?:in )?(?:assets under management|AUM|in assets|tài sản quản lý)", re.I)
+
+
 def deal_usd(title):
     """Giá trị thương vụ ước tính (triệu USD) theo số tiền lớn nhất trong tiêu đề, hoặc None."""
     best = None
     for m in _MONEY.finditer(title or ""):
+        # số tiền là dư nợ / kết quả kinh doanh, không phải giá trị thương vụ
+        if _NOT_SIZE.search((title or "")[max(0, m.start() - 25):m.start()]) or \
+                _AFTER_SIZE.match((title or "")[m.end():m.end() + 30]):
+            continue
         if m.group(1):
             v, u = float(m.group(1).replace(",", ".")), m.group(2).lower()
             v *= {"trillion": 1e6, "tn": 1e6, "billion": 1e3, "bn": 1e3, "b": 1e3}.get(u, 1)
