@@ -181,8 +181,17 @@ _JUNK2 = re.compile(
 _SECTION_URL = re.compile(r"^https?://[^/]+/(?:[\w-]+/){1,3}$")
 
 
+_SHORT_PAGE = re.compile(r"^https?://[^/]+/(?:[\w-]+/)?([\w-]+)\.(?:html?|chn)$")
+
+
 def is_section_url(url):
-    return bool(url and _SECTION_URL.match(url) and not re.search(r"\d{5,}", url))
+    """Trang chuyên mục: '.../muc/' hoặc '.../muc/trang-ngan.htm' (tối đa 4 từ, không có mã bài)."""
+    if not url or re.search(r"\d{5,}", url):
+        return False
+    if _SECTION_URL.match(url):
+        return True
+    m = _SHORT_PAGE.match(url)
+    return bool(m and len(m.group(1).split("-")) <= 4)
 
 
 def is_junk(it):
