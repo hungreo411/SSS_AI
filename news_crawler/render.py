@@ -174,7 +174,7 @@ _JUNK2 = re.compile(
     r"mẹ chồng|con dâu|vợ chồng (?:tôi|trẻ)|\btôi (?:đã|vẫn|quyết|nhẫn tâm)|hẹn hò|showbiz|hoa hậu|diễn viên|ca sĩ|"
     r"nghệ sĩ|kol\b|tiktoker|những thực phẩm|thực phẩm nên|món ăn|công thức nấu|giảm cân|làm đẹp|"
     r"trúng số|xổ số|vé số|biển số .{0,10}trúng đấu giá|cẩm nang nghề nghiệp|đáp ứng mọi thông tin|"
-    r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|bóng đá|v\.league|cầu thủ|huấn luyện viên", re.IGNORECASE)
+    r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|v\.league|huấn luyện viên", re.IGNORECASE)
 
 
 def is_junk(it):
