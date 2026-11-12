@@ -67,6 +67,8 @@ def build_items(arts, now_ts):
             continue
         if re.search(r"\s\|\s", a["title"]) and not re.search(r"\d{4,}", a["url"]):
             continue
+        if _JUNK_URL.search(a["url"]):
+            continue
         seen.add(a["url"])
         uniq.append(a)
     for a in uniq:
@@ -154,16 +156,29 @@ _JUNK = re.compile(
     r"summary - ft\.com|income statement|shares (?:sold|purchased|acquired) by|stake (?:lifted|cut|raised) by|"
     r"position in|holdings? in .* (?:inc|corp)|\bcall \(|\bput \(|price target|enterprise value to ebitda|"
     r"\b(?:ipl|cricket|tennis|atp|wta|motogp|football|baseball|nba|nfl|squad|auction|live stream|vs\.? )\b|"
-    r"match - |maxpreps|stock pdf|earnings call presentation|hamilton|leclerc|grand prix|formula 1|\\bf1\\b|liverpool|premier league|"
-    r"\\bdome\\b|concert|live review|should you (?:buy|sell)|\\bprice:|\\bappoints\\b|"
+    r"match - |maxpreps|stock pdf|earnings call presentation|hamilton|leclerc|grand prix|formula 1|\bf1\b|liverpool|premier league|"
+    r"\bdome\b|concert|live review|should you (?:buy|sell)|\bprice:|\bappoints\b|"
     r"con giáp|tử vi|phong thủy|mẹo|thủ thuật|lịch thi đấu|olympia|cận cảnh nhà|rao bán|cương thi|"
     r"\bSN (?:19|20)\d\d\b|tin tức .* mới nhất|bảng giá|tỷ giá usd hôm nay|lãi suất ngân hàng hôm nay|"
     r"giá vàng hôm nay|giá xăng dầu hôm nay|giá cà phê hôm nay|nguyễn phú trọng|phạm minh chính|khóa xiii|khoá xiii|"
     r"năm 202[2-4]\b", re.IGNORECASE)
 
 
+# Trang chủ đề / tag / chuyên đề (không phải bài báo; ngày đăng thường sai — VD nhandan.vn/chu-de/...)
+_JUNK_URL = re.compile(r"/(?:chu-de|tag|tags|topic|topics|tu-khoa|chuyen-de|event|su-kien-noi-bat)/", re.I)
+# Tiêu đề kiểu tên chuyên mục, và tin đời sống / giật tít không có giá trị thông tin
+_JUNK2 = re.compile(
+    r"^tin tức\b|cập nhật liên tục 24/7|tin tức .{0,40}24 giờ qua|- tin, tình hình|^(?:[\w ]+) - (?:[\w ]+), (?:[\w ]+)$|"
+    r"video hoạt động quốc hội 24/7|kênh thông tin chính thống|^thời sự quốc hội$|^phân tích- bình luận$|"
+    r"^phát hiện (?:\d|một|1|cựu|nam|nữ)|^u[5-9]0\b|tin vui cho người|cô gái|chàng trai|người đàn ông|người phụ nữ|"
+    r"mẹ chồng|con dâu|vợ chồng (?:tôi|trẻ)|\btôi (?:đã|vẫn|quyết|nhẫn tâm)|hẹn hò|showbiz|hoa hậu|diễn viên|ca sĩ|"
+    r"nghệ sĩ|kol\b|tiktoker|những thực phẩm|thực phẩm nên|món ăn|công thức nấu|giảm cân|làm đẹp|"
+    r"trúng số|xổ số|vé số|biển số .{0,10}trúng đấu giá|cẩm nang nghề nghiệp|đáp ứng mọi thông tin|"
+    r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|bóng đá|v\.league|cầu thủ|huấn luyện viên", re.IGNORECASE)
+
+
 def is_junk(it):
-    return bool(_JUNK.search(it["title"]))
+    return bool(_JUNK.search(it["title"]) or _JUNK2.search(it["title"]) or _JUNK_URL.search(it.get("url") or ""))
 
 
 def select_balanced(items, total=1000, per_topic=20, per_company=2):
