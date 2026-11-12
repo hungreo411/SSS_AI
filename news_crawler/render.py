@@ -67,7 +67,7 @@ def build_items(arts, now_ts):
             continue
         if re.search(r"\s\|\s", a["title"]) and not re.search(r"\d{4,}", a["url"]):
             continue
-        if _JUNK_URL.search(a["url"]):
+        if _JUNK_URL.search(a["url"]) or is_section_url(a["url"]):
             continue
         seen.add(a["url"])
         uniq.append(a)
@@ -177,8 +177,17 @@ _JUNK2 = re.compile(
     r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|v\.league|huấn luyện viên", re.IGNORECASE)
 
 
+# Trang chuyên mục: đường dẫn kết thúc bằng "/" và không có mã bài (VD nhandan.vn/van-ban-quy-dinh-huong-dan/)
+_SECTION_URL = re.compile(r"^https?://[^/]+/(?:[\w-]+/){1,3}$")
+
+
+def is_section_url(url):
+    return bool(url and _SECTION_URL.match(url) and not re.search(r"\d{5,}", url))
+
+
 def is_junk(it):
-    return bool(_JUNK.search(it["title"]) or _JUNK2.search(it["title"]) or _JUNK_URL.search(it.get("url") or ""))
+    u = it.get("url") or ""
+    return bool(_JUNK.search(it["title"]) or _JUNK2.search(it["title"]) or _JUNK_URL.search(u) or is_section_url(u))
 
 
 def select_balanced(items, total=1000, per_topic=20, per_company=2):
