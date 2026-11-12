@@ -174,7 +174,7 @@ _JUNK2 = re.compile(
     r"mẹ chồng|con dâu|vợ chồng (?:tôi|trẻ)|\btôi (?:đã|vẫn|quyết|nhẫn tâm)|hẹn hò|showbiz|hoa hậu|diễn viên|ca sĩ|"
     r"nghệ sĩ|kol\b|tiktoker|những thực phẩm|thực phẩm nên|món ăn|công thức nấu|giảm cân|làm đẹp|"
     r"trúng số|xổ số|vé số|biển số .{0,10}trúng đấu giá|cẩm nang nghề nghiệp|đáp ứng mọi thông tin|"
-    r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|v\.league|huấn luyện viên", re.IGNORECASE)
+    r"(?:mua|bán) ở đâu rẻ|tấm lòng vàng|thể thao và cộng đồng|v\.league|huấn luyện viên|ronaldo|messi|world cup|pro league|thủ môn|nsưt|nsnd|\bvaping\b|hotel to open", re.IGNORECASE)
 
 
 # Trang chuyên mục: đường dẫn kết thúc bằng "/" và không có mã bài (VD nhandan.vn/van-ban-quy-dinh-huong-dan/)
