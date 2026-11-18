@@ -61,7 +61,8 @@ COUNTRIES = [
      r"Home Depot|Costco|\bVisa\b|Mastercard|PayPal|Comcast|Verizon|AT&T|T-Mobile|Delta Air|United Airlines|American Airlines|"
      r"Caterpillar|Deere|Honeywell|Lockheed|Raytheon|\bRTX\b|Northrop|General Electric|Moderna|Gilead|Amgen|Skydance|"
      r"Palantir|Snowflake|Coinbase|Robinhood|Schwab|Vanguard|Fidelity|State Street|Bridgewater|Two Sigma|Millennium|"
-     r"Democrat|Republican|GOP\b|Pelosi|Vance\b|Rubio|Bessent|Lutnick|D\.C\.|Alabama|Alaska|Arizona|Arkansas|Colorado|"
+     r"Democrat|Republican|GOP\b|\bFAA\b|\bSEC\b|\bFTC\b|\bDOJ\b|\bIRS\b|\bFDA\b|Nexstar|Tegna|Biogen|Optimum|GXO|"
+     r"Lucky Strike|Biden|Obama|Harris\b|Newsom|Pelosi|Vance\b|Rubio|Bessent|Lutnick|D\.C\.|Alabama|Alaska|Arizona|Arkansas|Colorado|"
      r"Connecticut|Florida|Georgia(?! the)|Hawaii|Idaho|Illinois|Chicago|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|"
      r"Maryland|Massachusetts|Boston|Michigan|Detroit|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|Las Vegas|"
      r"New Hampshire|New Jersey|New Mexico|North Carolina|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|"
@@ -78,7 +79,8 @@ COUNTRIES = [
     ("eu", "EU - Eurozone", "Châu Âu", r"European Union|\bEU\b|Eurozone|euro area|\bECB\b|Lagarde|European Commission|"
      r"Brussels|von der Leyen|\bEurope\b|European"),
     ("de", "Đức", "Châu Âu", r"German(?:y)?|Berlin|Frankfurt|Bundesbank|\bMerz\b|\bDAX\b|Siemens|Volkswagen|\bBMW\b|"
-     r"Mercedes|Deutsche Bank|Commerzbank|Allianz|\bSAP\b|Bayer|BASF|Porsche|Rheinmetall|Lufthansa|Munich Re|\bRWE\b|KNDS"),
+     r"Mercedes|Deutsche Bank|Commerzbank|Allianz|\bSAP\b|Bayer|BASF|Porsche|Rheinmetall|Lufthansa|Munich Re|\bRWE\b|KNDS|"
+     r"Hapag-Lloyd|Adidas|Puma|Infineon|E\.ON|Henkel|Continental|Zalando|DHL|Deutsche Telekom|Hensoldt"),
     ("fr", "Pháp", "Châu Âu", r"France|French|Paris|Macron|CAC 40|LVMH|TotalEnergies|BNP Paribas|Soci[ée]t[ée] G[ée]n[ée]rale|"
      r"Cr[ée]dit Agricole|\bAXA\b|Airbus|L'Or[ée]al|Herm[èe]s|Danone|Renault|Sanofi|Kering"),
     ("it_es", "Ý - Tây Ban Nha - Bồ Đào Nha", "Châu Âu", r"Ital(?:y|ian)|\bRome\b|Milan|Meloni|Spain|Spanish|Madrid|UniCredit|"
@@ -151,7 +153,10 @@ INTL_JUNK = re.compile(
     r"\bMLS\b|\bLIV\b|\bDP World Tour\b|semi-final|quarter-final|\bseed\b|\bNFL\b|\bNBA\b|\bNHL\b|\bMLB\b|"
     r"Rams|Dodgers|Yankees|Lakers|Mbappe|Griezmann|Messi|Ronaldo|hamstring|\bgolf\b|tennis|Wimbledon|Formula One|\bF1\b|"
     r"Premier League|Champions League|World Cup|Olympic|recipe|restaurant review|fashion week|\bnovel\b|film review|"
-    r"how to spend|lunch with the ft|style\b|wine|vintage|horoscope", re.I)
+    r"how to spend|lunch with the ft|style\b|wine|vintage|horoscope|springbok|rugby|cricket|timberwolves|trail blazers|"
+    r"\bFIFA\b|manchester city|manchester united|arsenal|chelsea|liverpool|^bridge:|advent calendar|^letter:|"
+    r"casino cruise|book tour|\bcoach\b|touchdown|quarterback|playoff|\bslam\b|latest news and analysis|"
+    r"^watch |businessweek daily|daily podcast|^opinion:|crossword", re.I)
 
 
 # ------------------------------------------------------------------ nhóm chủ đề trong mỗi nước
@@ -189,10 +194,13 @@ _LEGAL = re.compile(r"\bfine[sd]?\b|collusion|probe|lawsuit|\bsues?\b|\bsued\b|c
                     r"settle(?:s|d|ment)|fraud|penalt", re.I)
 
 
+_DEAL_EXTRA = re.compile(r"take[- ]private|tender offer|buyout (?:offer|bid|deal)|bid for|takeover|acquisition|merger", re.I)
+
+
 def category_of(title, lang="en"):
     if _LEGAL.search(title):
         return "politics"
-    if is_deal(title, lang):
+    if is_deal(title, lang) or _DEAL_EXTRA.search(title):
         return "mna"
     for cid, _, rx in CATS:
         if rx is not None and rx.search(title):
@@ -270,7 +278,7 @@ def _bing(fetcher, title):
         g = lambda tag: (re.search(rf"<{tag}>(.*?)</{tag}>", it, re.S) or [None, ""])[1]
         link = html.unescape(g("link"))
         u = parse_qs(urlparse(link).query).get("url", [link])[0]
-        out.append(dict(title=html.unescape(g("title")), url=u, desc=html.unescape(g("description")),
+        out.append(dict(title=html.unescape(g("title")), url=u, desc=re.sub(r"<[^>]+>", "", html.unescape(g("description"))),
                         source=html.unescape(g("News:Source")), ts=X.parse_date(g("pubDate"))))
     return out
 
@@ -466,6 +474,8 @@ def dedupe(items):
 def classify(items):
     out = []
     for it in items:
+        if it.get("bullets"):
+            it["bullets"] = [re.sub(r"<[^>]+>", "", b or "") for b in it["bullets"]]
         if INTL_JUNK.search(it["title"]):
             continue
         lead = " ".join(it.get("bullets") or [])
