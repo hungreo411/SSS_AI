@@ -55,9 +55,21 @@ COUNTRIES = [
      r"Nvidia|Apple|Microsoft|Alphabet|Google|Amazon|\bMeta\b|Tesla|OpenAI|Anthropic|JPMorgan|Goldman|Morgan Stanley|"
      r"BlackRock|Blackstone|\bKKR\b|Apollo|Berkshire|Citigroup|Bank of America|Wells Fargo|Exxon|Chevron|Boeing|"
      r"\bIntel\b|\bAMD\b|Oracle|Pfizer|Eli Lilly|Walmart|Netflix|Disney|Broadcom|Micron|Qualcomm|SpaceX|\bxAI\b|CoreWeave|"
-     r"Carlyle|Citadel|Fortress|Silver Lake|Warner|Paramount|Starbucks|McDonald|Ford\b|General Motors"),
+     r"Carlyle|Citadel|Fortress|Silver Lake|Warner|Paramount|Starbucks|McDonald|Ford\b|General Motors|\bGM\b|Nike|JetBlue|"
+     r"PG&E|Take-Two|Kalshi|Polymarket|Intercontinental Exchange|\bNYSE\b|McCormick|BofA|Medline|Coatue|Cisco|Salesforce|"
+     r"\bIBM\b|\bDell\b|\bUber\b|Airbnb|Coca-Cola|Pepsi|Procter|Johnson & Johnson|Merck|AbbVie|UnitedHealth|\bCVS\b|"
+     r"Home Depot|Costco|\bVisa\b|Mastercard|PayPal|Comcast|Verizon|AT&T|T-Mobile|Delta Air|United Airlines|American Airlines|"
+     r"Caterpillar|Deere|Honeywell|Lockheed|Raytheon|\bRTX\b|Northrop|General Electric|Moderna|Gilead|Amgen|Skydance|"
+     r"Palantir|Snowflake|Coinbase|Robinhood|Schwab|Vanguard|Fidelity|State Street|Bridgewater|Two Sigma|Millennium|"
+     r"Democrat|Republican|GOP\b|Pelosi|Vance\b|Rubio|Bessent|Lutnick|D\.C\.|Alabama|Alaska|Arizona|Arkansas|Colorado|"
+     r"Connecticut|Florida|Georgia(?! the)|Hawaii|Idaho|Illinois|Chicago|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|"
+     r"Maryland|Massachusetts|Boston|Michigan|Detroit|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|Las Vegas|"
+     r"New Hampshire|New Jersey|New Mexico|North Carolina|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|"
+     r"Tennessee|Utah|Vermont|Virginia|Wisconsin|Wyoming|Silicon Valley|Seattle|San Francisco|Los Angeles|Houston|Miami|"
+     r"Atlanta|Dallas|Denver|Phoenix|Philadelphia|Pittsburgh"),
     ("ca", "Canada", "Châu Mỹ", r"Canada|Canadian|Toronto|Ottawa|Carney|Bank of Canada|\bRBC\b|Royal Bank of Canada|TD Bank|"
-     r"Brookfield|Shopify|Enbridge|Alberta"),
+     r"Brookfield|Shopify|Enbridge|Alberta|Scotiabank|Desjardins|iA Financial|Quebec|Telus|Rogers|Montreal|Vancouver|"
+     r"Manulife|Sun Life|Suncor|Canadian Natural|TransAlta|Strathcona|GFL"),
     ("latam", "Mỹ Latinh", "Châu Mỹ", r"Brazil|Brazilian|Mexico|Mexican|Argentin|Milei|Chile|Chilean|Colombia|Peru\b|"
      r"Venezuela|Latin America|Lula|Sheinbaum|Petrobras|\bVale\b|Ecopetrol|Paraguay|Uruguay|Panama"),
     ("uk", "Anh", "Châu Âu", r"Britain|British|\bUK\b|U\.K\.|England|London|Bank of England|\bBoE\b|Reeves|Starmer|FTSE|"
@@ -74,7 +86,8 @@ COUNTRIES = [
     ("ch_nl", "Thụy Sĩ - Hà Lan - Bắc Âu - châu Âu khác", "Châu Âu",
      r"Switzerland|Swiss|Zurich|\bUBS\b|Nestl[ée]|Novartis|\bRoche\b|Netherlands|Dutch|Amsterdam|\bASML\b|\bING\b|Belgi|"
      r"Sweden|Swedish|Norw|Denmark|Danish|Novo Nordisk|Finland|Finnish|Poland|Polish|Austria|Ireland|Irish|Greece|Greek|"
-     r"Czech|Hungar|Orlen|Equinor|Ericsson|Nokia|Volvo|Maersk|AkzoNobel|Heineken|Philips|Adyen|Prosus|Slovak|Romania"),
+     r"Czech|Hungar|Orlen|Equinor|Ericsson|Nokia|Volvo|Maersk|AkzoNobel|Heineken|Philips|Adyen|Prosus|Slovak|Romania|"
+     r"Serbia|Bulgaria|Croatia|Slovenia|Baltic|Estonia|Latvia|Lithuania|Iceland|IKEA|Iceye|Spotify|Klarna|H&M"),
     ("ru_ua", "Nga - Ukraine", "Châu Âu", r"Russia|Russian|Moscow|Kremlin|Putin|Ukrain|Kyiv|Kiev|Zelensky|Gazprom|Rosneft"),
     ("cn", "Trung Quốc", "Châu Á", r"China|Chinese|Beijing|Shanghai|Shenzhen|Xi Jinping|\bXi\b|\bPBOC\b|People's Bank of China|"
      r"\byuan\b|renminbi|Alibaba|Tencent|\bBYD\b|Huawei|\bCATL\b|Xiaomi|Baidu|JD\.com|\bPDD\b|Pinduoduo|ByteDance|TikTok|"
@@ -98,8 +111,11 @@ COUNTRIES = [
     ("th", "Thái Lan", "Đông Nam Á", r"Thailand|\bThai\b|Bangkok|Bank of Thailand|\bbaht\b|\bPTT\b|CP Group|Charoen Pokphand|Anutin"),
     ("ph", "Philippines", "Đông Nam Á", r"Philippine|Filipino|Manila|Marcos|Bangko Sentral|\bAyala\b|SM Investments|Ramon Ang|"
      r"San Miguel|Jollibee"),
+    ("asia_other", "Châu Á khác (Nam Á, Trung Á, Mông Cổ...)", "Châu Á",
+     r"Sri Lanka|Pakistan|Bangladesh|Nepal|Mongolia|Papua New Guinea|Kazakhstan|Uzbekistan|Kyrgyz|Tajik|Turkmen|"
+     r"Afghanistan|Cambodia|Laos|Myanmar|North Korea|Pyongyang|Kim Jong"),
     ("au", "Úc - New Zealand", "Châu Á", r"Australia|Sydney|Melbourne|\bRBA\b|Reserve Bank of Australia|Albanese|\bASX\b|\bBHP\b|"
-     r"Rio Tinto|Macquarie|Commonwealth Bank|New Zealand|\bRBNZ\b"),
+     r"Rio Tinto|Macquarie|Commonwealth Bank|New Zealand|\bRBNZ\b|Qantas|Woodside|Fortescue|Westpac|\bANZ\b|Yarra"),
     ("gulf", "Vùng Vịnh (Saudi, UAE, Qatar)", "Trung Đông - châu Phi", r"Saudi|Riyadh|Aramco|\bPIF\b|Public Investment Fund|\bUAE\b|"
      r"Emirat|Abu Dhabi|Dubai|Mubadala|ADNOC|\bADIA\b|\bADQ\b|Qatar|Doha|\bQIA\b|Kuwait|Bahrain|\bOman\b|\bMGX\b|\bG42\b"),
     ("me", "Trung Đông khác (Israel, Iran, Thổ Nhĩ Kỳ...)", "Trung Đông - châu Phi", r"Israel|Netanyahu|\bGaza\b|\bIran|Tehran|"
@@ -124,6 +140,18 @@ def country_of(title, lead=""):
         if best_key is None or key > best_key:
             best, best_key = cid, key
     return best
+
+
+# Thông cáo báo chí, lịch sự kiện, thể thao, văn hóa - đời sống: không đưa vào bản tin
+INTL_JUNK = re.compile(
+    r"company announcement|eqs-news|\bannounces? (?:date|conference call|distribution|annual meeting|its \d|webcast)|"
+    r"declares (?:distribution|dividend)|webinar|\bwatch bloomberg|market talk|roundup:|daily briefing|best books|"
+    r"festival|symphony|scents?\b|transaction in own shares|mandatory notification|share lending|disavows|"
+    r"to (?:host|hold) (?:investor|conference) call|to join virtual|fireside chat|podcast|\bquiz\b|crossword|"
+    r"\bMLS\b|\bLIV\b|\bDP World Tour\b|semi-final|quarter-final|\bseed\b|\bNFL\b|\bNBA\b|\bNHL\b|\bMLB\b|"
+    r"Rams|Dodgers|Yankees|Lakers|Mbappe|Griezmann|Messi|Ronaldo|hamstring|\bgolf\b|tennis|Wimbledon|Formula One|\bF1\b|"
+    r"Premier League|Champions League|World Cup|Olympic|recipe|restaurant review|fashion week|\bnovel\b|film review|"
+    r"how to spend|lunch with the ft|style\b|wine|vintage|horoscope", re.I)
 
 
 # ------------------------------------------------------------------ nhóm chủ đề trong mỗi nước
@@ -414,6 +442,40 @@ def render(items, hours, now, stats):
     return "\n".join(out)
 
 
+def dedupe(items):
+    """Gộp tin cùng sự kiện (tiêu đề trùng >= 50% từ) trong cùng nước; giữ tin điểm cao, thêm link vào 'cùng đưa tin'."""
+    kept, sigs = [], []
+    for it in sorted(items, key=lambda r: (-r["score"], -(len((r.get("bullets") or [""])[0])))):
+        tk = _toks(it["title"])
+        dup = None
+        for k, (c, s) in enumerate(sigs):
+            if c == it["country"] and tk and len(tk & s) / max(1, len(tk | s)) >= 0.5:
+                dup = kept[k]
+                break
+        if dup:
+            dup.setdefault("others", [])
+            dup["others"] = list(dup["others"]) + [(it["source"], it["url"])]
+            if not (dup.get("bullets") and dup["bullets"][0]) and it.get("bullets") and it["bullets"][0]:
+                dup["bullets"], dup["enriched_from"] = it["bullets"], it.get("enriched_from")
+            continue
+        kept.append(it)
+        sigs.append((it["country"], tk))
+    return kept
+
+
+def classify(items):
+    out = []
+    for it in items:
+        if INTL_JUNK.search(it["title"]):
+            continue
+        lead = " ".join(it.get("bullets") or [])
+        it["country"] = country_of(it["title"], lead)
+        it["cat"] = category_of(it["title"], it.get("lang", "en"))
+        it["deal_usd"] = deal_usd(it["title"]) if it["cat"] in ("mna", "funding") else None
+        out.append(it)
+    return dedupe(out)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="news_crawler.intl")
     ap.add_argument("--hours", type=int, default=24)
@@ -422,27 +484,36 @@ def main(argv=None):
     ap.add_argument("--out", default="reports/quoc-te.html")
     ap.add_argument("--json")
     ap.add_argument("--cache", default=".cache")
+    ap.add_argument("--from-json", help="dựng lại từ JSON của lần chạy trước (không crawl lại), làm giàu tiếp tin còn thiếu")
     o = ap.parse_args(argv)
     t0 = time.time()
     f = Fetcher(cache_dir=o.cache)
-    arts, reps = collect(f, o.hours, o.full)
-    now = time.time()
-    items = [i for i in build_items(arts, now) if not is_junk(i)]
-    for it in items:
-        lead = " ".join(it.get("bullets") or [])
-        it["country"] = country_of(it["title"], lead)
-        it["cat"] = category_of(it["title"], it.get("lang", "en"))
-        if it["cat"] in ("mna", "funding"):
-            it["deal_usd"] = deal_usd(it["title"])
+    if o.from_json:
+        d = json.load(open(o.from_json, encoding="utf-8"))
+        items, now = d["items"], d["now"]
+        for it in items:
+            it.setdefault("lang", "en")
+            it["others"] = [tuple(x) for x in it.get("others") or []]
+            if it.get("enriched_from"):
+                it["enriched_from"] = tuple(it["enriched_from"])
+        n0 = sum(1 for i in items if i.get("enriched_from"))
+    else:
+        arts, reps = collect(f, o.hours, o.full)
+        now = time.time()
+        items = [i for i in build_items(arts, now) if not is_junk(i)]
+        n0 = 0
+        print(f"{len(arts)} bài của 5 báo", flush=True)
+    items = classify(items)
     items.sort(key=lambda r: (-r["score"], -(r["ts"] or 0)))
-    print(f"{len(arts)} bài của 5 báo -> {len(items)} sự kiện; làm giàu nội dung…", flush=True)
+    print(f"{len(items)} sự kiện sau lọc và gộp trùng; làm giàu nội dung…", flush=True)
     n, tried = enrich(f, items, o.enrich)
+    n += n0
     print(f"  bổ sung nội dung {n}/{tried} tin chỉ có tiêu đề", flush=True)
     os.makedirs(os.path.dirname(o.out) or ".", exist_ok=True)
     open(o.out, "w", encoding="utf-8").write(render(items, o.hours, now, dict(enriched=n)))
     if o.json:
         keep = ("title", "url", "source", "ts", "bullets", "others", "level", "score", "topic", "country", "cat",
-                "deal_usd", "enriched_from", "titans")
+                "deal_usd", "enriched_from", "titans", "lang")
         json.dump(dict(items=[{k: i.get(k) for k in keep} for i in items], now=now, hours=o.hours),
                   open(o.json, "w", encoding="utf-8"), ensure_ascii=False)
     c = Counter(i["country"] for i in items)
